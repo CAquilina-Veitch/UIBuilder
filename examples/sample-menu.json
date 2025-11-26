@@ -1,0 +1,384 @@
+{
+  "canvasWidth": 1920,
+  "canvasHeight": 1080,
+  "gridSize": 10,
+  "elements": [
+    {
+      "id": 1,
+      "type": "container",
+      "name": "MainMenuPanel",
+      "x": 35,
+      "y": 20,
+      "width": 580,
+      "height": 650,
+      "parentId": null,
+      "properties": {
+        "backgroundColor": "rgba(30, 30, 30, 0.95)",
+        "borderColor": "rgba(100, 100, 100, 0.5)",
+        "borderWidth": 2,
+        "padding": 20,
+        "clipChildren": false
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 2,
+      "type": "text",
+      "name": "TitleText",
+      "x": 25,
+      "y": 5,
+      "width": 300,
+      "height": 50,
+      "parentId": 1,
+      "properties": {
+        "text": "GAME MENU",
+        "textColor": "#ffffff",
+        "fontSize": 32,
+        "textAlign": "center"
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 3,
+      "type": "button",
+      "name": "PlayButton",
+      "x": 17,
+      "y": 15,
+      "width": 380,
+      "height": 60,
+      "parentId": 1,
+      "properties": {
+        "text": "PLAY",
+        "textColor": "#ffffff",
+        "backgroundColor": "#2e7d32",
+        "borderColor": "#4caf50",
+        "borderWidth": 2,
+        "borderRadius": 8
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "MenuState",
+            "value": "GameMode"
+          }
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "type": "button",
+      "name": "SettingsButton",
+      "x": 17,
+      "y": 27,
+      "width": 380,
+      "height": 60,
+      "parentId": 1,
+      "properties": {
+        "text": "SETTINGS",
+        "textColor": "#ffffff",
+        "backgroundColor": "#1565c0",
+        "borderColor": "#2196f3",
+        "borderWidth": 2,
+        "borderRadius": 8
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "MenuState",
+            "value": "Settings"
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "type": "button",
+      "name": "QuitButton",
+      "x": 17,
+      "y": 39,
+      "width": 380,
+      "height": 60,
+      "parentId": 1,
+      "properties": {
+        "text": "QUIT",
+        "textColor": "#ffffff",
+        "backgroundColor": "#c62828",
+        "borderColor": "#f44336",
+        "borderWidth": 2,
+        "borderRadius": 8
+      },
+      "logic": {
+        "actions": []
+      }
+    },
+    {
+      "id": 6,
+      "type": "container",
+      "name": "GameModePanel",
+      "x": 17,
+      "y": 55,
+      "width": 380,
+      "height": 250,
+      "parentId": 1,
+      "properties": {
+        "backgroundColor": "rgba(50, 50, 50, 0.8)",
+        "borderColor": "rgba(100, 100, 100, 0.5)",
+        "borderWidth": 1,
+        "padding": 10,
+        "clipChildren": false
+      },
+      "logic": {
+        "conditions": [
+          {
+            "variable": "MenuState",
+            "values": ["GameMode"],
+            "operator": "AND"
+          }
+        ],
+        "result": "enable"
+      }
+    },
+    {
+      "id": 7,
+      "type": "text",
+      "name": "GameModeTitle",
+      "x": 15,
+      "y": 5,
+      "width": 260,
+      "height": 30,
+      "parentId": 6,
+      "properties": {
+        "text": "Select Game Mode",
+        "textColor": "#cccccc",
+        "fontSize": 18,
+        "textAlign": "center"
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 8,
+      "type": "button",
+      "name": "SinglePlayerBtn",
+      "x": 10,
+      "y": 22,
+      "width": 160,
+      "height": 50,
+      "parentId": 6,
+      "properties": {
+        "text": "Single Player",
+        "textColor": "#ffffff",
+        "backgroundColor": "#455a64",
+        "borderColor": "#78909c",
+        "borderWidth": 1,
+        "borderRadius": 6
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "GameMode",
+            "value": "SinglePlayer"
+          }
+        ]
+      }
+    },
+    {
+      "id": 9,
+      "type": "button",
+      "name": "MultiplayerBtn",
+      "x": 55,
+      "y": 22,
+      "width": 160,
+      "height": 50,
+      "parentId": 6,
+      "properties": {
+        "text": "Multiplayer",
+        "textColor": "#ffffff",
+        "backgroundColor": "#455a64",
+        "borderColor": "#78909c",
+        "borderWidth": 1,
+        "borderRadius": 6
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "GameMode",
+            "value": "Multiplayer"
+          }
+        ]
+      }
+    },
+    {
+      "id": 10,
+      "type": "button",
+      "name": "BackFromGameMode",
+      "x": 25,
+      "y": 75,
+      "width": 180,
+      "height": 40,
+      "parentId": 6,
+      "properties": {
+        "text": "Back",
+        "textColor": "#cccccc",
+        "backgroundColor": "#37474f",
+        "borderColor": "#546e7a",
+        "borderWidth": 1,
+        "borderRadius": 4
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "MenuState",
+            "value": "Main"
+          }
+        ]
+      }
+    },
+    {
+      "id": 11,
+      "type": "container",
+      "name": "SettingsPanel",
+      "x": 17,
+      "y": 55,
+      "width": 380,
+      "height": 250,
+      "parentId": 1,
+      "properties": {
+        "backgroundColor": "rgba(50, 50, 50, 0.8)",
+        "borderColor": "rgba(100, 100, 100, 0.5)",
+        "borderWidth": 1,
+        "padding": 10,
+        "clipChildren": false
+      },
+      "logic": {
+        "conditions": [
+          {
+            "variable": "MenuState",
+            "values": ["Settings"],
+            "operator": "AND"
+          }
+        ],
+        "result": "enable"
+      }
+    },
+    {
+      "id": 12,
+      "type": "text",
+      "name": "SettingsTitle",
+      "x": 15,
+      "y": 5,
+      "width": 260,
+      "height": 30,
+      "parentId": 11,
+      "properties": {
+        "text": "Settings",
+        "textColor": "#cccccc",
+        "fontSize": 18,
+        "textAlign": "center"
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 13,
+      "type": "text",
+      "name": "VolumeLabel",
+      "x": 10,
+      "y": 22,
+      "width": 100,
+      "height": 30,
+      "parentId": 11,
+      "properties": {
+        "text": "Volume:",
+        "textColor": "#aaaaaa",
+        "fontSize": 14,
+        "textAlign": "left"
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 14,
+      "type": "image",
+      "name": "VolumeSliderPlaceholder",
+      "x": 35,
+      "y": 22,
+      "width": 200,
+      "height": 30,
+      "parentId": 11,
+      "properties": {
+        "placeholderColor": "#5a5a5a",
+        "borderColor": "#78909c",
+        "borderWidth": 1
+      },
+      "logic": {
+        "conditions": []
+      }
+    },
+    {
+      "id": 15,
+      "type": "button",
+      "name": "BackFromSettings",
+      "x": 25,
+      "y": 75,
+      "width": 180,
+      "height": 40,
+      "parentId": 11,
+      "properties": {
+        "text": "Back",
+        "textColor": "#cccccc",
+        "backgroundColor": "#37474f",
+        "borderColor": "#546e7a",
+        "borderWidth": 1,
+        "borderRadius": 4
+      },
+      "logic": {
+        "actions": [
+          {
+            "variable": "MenuState",
+            "value": "Main"
+          }
+        ]
+      }
+    },
+    {
+      "id": 16,
+      "type": "text",
+      "name": "CurrentModeDisplay",
+      "x": 65,
+      "y": 90,
+      "width": 300,
+      "height": 30,
+      "parentId": 1,
+      "properties": {
+        "text": "Selected: (choose a mode)",
+        "textColor": "#888888",
+        "fontSize": 12,
+        "textAlign": "center"
+      },
+      "logic": {
+        "conditions": []
+      }
+    }
+  ],
+  "variables": [
+    {
+      "name": "MenuState",
+      "values": ["Main", "GameMode", "Settings"],
+      "defaultValue": "Main"
+    },
+    {
+      "name": "GameMode",
+      "values": ["None", "SinglePlayer", "Multiplayer"],
+      "defaultValue": "None"
+    }
+  ],
+  "nextElementId": 17
+}

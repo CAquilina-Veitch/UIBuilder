@@ -1,0 +1,2631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UI Builder</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-panel: #252526;
+            --bg-hover: #2a2d2e;
+            --bg-selected: #094771;
+            --border-color: #3c3c3c;
+            --text-primary: #cccccc;
+            --text-secondary: #858585;
+            --accent: #0e639c;
+            --accent-hover: #1177bb;
+            --success: #4ec9b0;
+            --warning: #dcdcaa;
+            --error: #f44747;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Toolbar */
+        #toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            height: 44px;
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 4px;
+            padding-right: 12px;
+            border-right: 1px solid var(--border-color);
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+        }
+
+        .toolbar-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s;
+        }
+
+        .toolbar-btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-color);
+        }
+
+        .toolbar-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toolbar-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .toolbar-btn.preview-active {
+            background: #2ea043;
+            border-color: #2ea043;
+        }
+
+        /* Main Layout */
+        #main-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Left Panel */
+        #left-panel {
+            width: 200px;
+            min-width: 200px;
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            padding: 10px 12px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-dark);
+        }
+
+        /* Elements Palette */
+        #elements-palette {
+            padding: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .element-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 10px;
+            border-radius: 4px;
+            cursor: grab;
+            transition: background 0.15s;
+            user-select: none;
+        }
+
+        .element-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .element-item:active {
+            cursor: grabbing;
+        }
+
+        .element-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border-radius: 4px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+        }
+
+        .element-icon.container { color: #569cd6; }
+        .element-icon.button { color: #4ec9b0; }
+        .element-icon.image { color: #ce9178; }
+        .element-icon.text { color: #dcdcaa; }
+
+        /* Hierarchy Panel */
+        #hierarchy-panel {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        #hierarchy-tree {
+            padding: 8px;
+        }
+
+        .hierarchy-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+        }
+
+        .hierarchy-item:hover {
+            background: var(--bg-hover);
+        }
+
+        .hierarchy-item.selected {
+            background: var(--bg-selected);
+        }
+
+        .hierarchy-item.drag-over {
+            border: 1px dashed var(--accent);
+        }
+
+        .hierarchy-item .expand-btn {
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .hierarchy-item .expand-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .hierarchy-children {
+            margin-left: 16px;
+        }
+
+        .hierarchy-item .item-icon {
+            font-size: 12px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .hierarchy-item .item-name {
+            flex: 1;
+        }
+
+        .hierarchy-item input.rename-input {
+            background: var(--bg-dark);
+            border: 1px solid var(--accent);
+            color: var(--text-primary);
+            padding: 2px 4px;
+            border-radius: 2px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        /* Canvas Area */
+        #canvas-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #1a1a1a;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #canvas-wrapper {
+            position: relative;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 9px,
+                #2a2a2a 9px,
+                #2a2a2a 10px
+            ),
+            repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 9px,
+                #2a2a2a 9px,
+                #2a2a2a 10px
+            );
+            background-color: #252525;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        #canvas {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .canvas-element {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+        }
+
+        .canvas-element.selected {
+            outline: 2px solid var(--accent);
+            outline-offset: -2px;
+        }
+
+        .canvas-element.container-el {
+            background: rgba(86, 156, 214, 0.1);
+            border: 1px dashed rgba(86, 156, 214, 0.5);
+        }
+
+        .canvas-element.button-el {
+            background: #3c3c3c;
+            border: 1px solid #5a5a5a;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+
+        .canvas-element.image-el {
+            background: linear-gradient(45deg, #3c3c3c 25%, #4a4a4a 25%, #4a4a4a 50%, #3c3c3c 50%, #3c3c3c 75%, #4a4a4a 75%);
+            background-size: 20px 20px;
+            border: 1px solid #5a5a5a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 24px;
+        }
+
+        .canvas-element.text-el {
+            color: var(--text-primary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            padding: 4px;
+        }
+
+        .canvas-element.hidden-in-preview {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Resize Handles */
+        .resize-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+            border: 1px solid #fff;
+            border-radius: 2px;
+            z-index: 1000;
+        }
+
+        .resize-handle.nw { top: -5px; left: -5px; cursor: nw-resize; }
+        .resize-handle.ne { top: -5px; right: -5px; cursor: ne-resize; }
+        .resize-handle.sw { bottom: -5px; left: -5px; cursor: sw-resize; }
+        .resize-handle.se { bottom: -5px; right: -5px; cursor: se-resize; }
+
+        /* Right Panel */
+        #right-panel {
+            width: 280px;
+            min-width: 280px;
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Properties Panel */
+        #properties-panel {
+            flex: 1;
+            overflow-y: auto;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .properties-content {
+            padding: 12px;
+        }
+
+        .property-group {
+            margin-bottom: 16px;
+        }
+
+        .property-group-title {
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .property-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .property-label {
+            width: 70px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .property-input {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .property-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .property-row-double {
+            display: flex;
+            gap: 8px;
+        }
+
+        .property-row-double .property-input {
+            width: 50%;
+        }
+
+        .property-input-small {
+            width: 60px !important;
+            flex: none !important;
+        }
+
+        .property-color {
+            width: 32px;
+            height: 32px;
+            padding: 2px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .property-select {
+            flex: 1;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .property-checkbox {
+            margin-right: 8px;
+        }
+
+        /* Variables Panel */
+        #variables-panel {
+            height: 250px;
+            min-height: 150px;
+            overflow-y: auto;
+        }
+
+        .variables-content {
+            padding: 12px;
+        }
+
+        .variable-item {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            margin-bottom: 8px;
+            overflow: hidden;
+        }
+
+        .variable-header {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        .variable-header:hover {
+            background: var(--bg-hover);
+        }
+
+        .variable-expand {
+            width: 16px;
+            font-size: 10px;
+            color: var(--text-secondary);
+        }
+
+        .variable-name {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .variable-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 4px;
+            font-size: 12px;
+        }
+
+        .variable-delete:hover {
+            color: var(--error);
+        }
+
+        .variable-values {
+            padding: 8px;
+            padding-top: 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .variable-value-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 0;
+        }
+
+        .variable-value-item input {
+            flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .variable-value-item .default-radio {
+            cursor: pointer;
+        }
+
+        .variable-value-item .delete-value {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .variable-value-item .delete-value:hover {
+            color: var(--error);
+        }
+
+        .add-value-btn, .add-variable-btn {
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            width: 100%;
+            margin-top: 4px;
+        }
+
+        .add-value-btn:hover, .add-variable-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        /* Logic Section */
+        .logic-section {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 12px;
+            margin-top: 8px;
+        }
+
+        .logic-title {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--warning);
+        }
+
+        .logic-action, .logic-condition {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .logic-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .logic-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .logic-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .logic-select {
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .logic-delete {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-left: auto;
+        }
+
+        .logic-delete:hover {
+            color: var(--error);
+        }
+
+        .add-logic-btn {
+            background: transparent;
+            border: 1px dashed var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            width: 100%;
+        }
+
+        .add-logic-btn:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .value-checkboxes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            background: var(--bg-dark);
+            padding: 4px;
+            border-radius: 4px;
+            max-width: 150px;
+        }
+
+        .value-checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 11px;
+            padding: 2px 4px;
+            background: var(--bg-panel);
+            border-radius: 2px;
+        }
+
+        /* Bottom Toolbar */
+        #bottom-toolbar {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 6px 12px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+
+        #bottom-toolbar label {
+            color: var(--text-secondary);
+        }
+
+        #bottom-toolbar input {
+            width: 50px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .status-text {
+            margin-left: auto;
+            color: var(--text-secondary);
+        }
+
+        /* Modal / Dialog */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .modal {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 24px;
+            min-width: 350px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .modal-row {
+            margin-bottom: 16px;
+        }
+
+        .modal-row label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+        }
+
+        .modal-row input, .modal-row select {
+            width: 100%;
+            background: var(--bg-dark);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .modal-row-double {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-row-double > div {
+            flex: 1;
+        }
+
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 24px;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .modal-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .modal-btn.secondary {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .modal-btn.secondary:hover {
+            background: var(--bg-hover);
+        }
+
+        /* Preview Mode Indicator */
+        .preview-mode #canvas-wrapper {
+            box-shadow: 0 0 0 3px #2ea043, 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        .preview-mode .canvas-element {
+            cursor: default;
+        }
+
+        .preview-mode .canvas-element.button-el {
+            cursor: pointer;
+        }
+
+        .preview-mode .canvas-element.button-el:hover {
+            filter: brightness(1.1);
+        }
+
+        .preview-mode .canvas-element.button-el:active {
+            filter: brightness(0.9);
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        /* No selection placeholder */
+        .no-selection {
+            padding: 20px;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        /* Drag ghost */
+        .drag-ghost {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.8;
+            z-index: 10000;
+            padding: 8px 12px;
+            background: var(--bg-panel);
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Resolution Dialog (shown on start) -->
+    <div id="resolution-dialog" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-title">New Project</div>
+            <div class="modal-row">
+                <label>Canvas Resolution</label>
+                <select id="resolution-preset">
+                    <option value="1920x1080">1920 x 1080 (Full HD Landscape)</option>
+                    <option value="1080x1920">1080 x 1920 (Full HD Portrait)</option>
+                    <option value="1280x720">1280 x 720 (HD Landscape)</option>
+                    <option value="720x1280">720 x 1280 (HD Portrait)</option>
+                    <option value="1080x1080">1080 x 1080 (Square)</option>
+                    <option value="custom">Custom...</option>
+                </select>
+            </div>
+            <div class="modal-row modal-row-double" id="custom-resolution" style="display: none;">
+                <div>
+                    <label>Width (px)</label>
+                    <input type="number" id="custom-width" value="1920" min="100" max="4096">
+                </div>
+                <div>
+                    <label>Height (px)</label>
+                    <input type="number" id="custom-height" value="1080" min="100" max="4096">
+                </div>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn secondary" id="load-existing-btn">Load Existing</button>
+                <button class="modal-btn primary" id="create-project-btn">Create Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App (hidden until project created) -->
+    <div id="app" style="display: none; flex-direction: column; height: 100vh;">
+        <!-- Toolbar -->
+        <div id="toolbar">
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="preview-btn" title="Preview Mode (P)">
+                    <span>&#9654;</span> Preview
+                </button>
+                <button class="toolbar-btn" id="stop-preview-btn" style="display: none;" title="Stop Preview">
+                    <span>&#9632;</span> Stop
+                </button>
+                <button class="toolbar-btn" id="reset-vars-btn" style="display: none;" title="Reset Variables">
+                    &#8634; Reset
+                </button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="undo-btn" title="Undo (Ctrl+Z)" disabled>
+                    &#8630; Undo
+                </button>
+                <button class="toolbar-btn" id="redo-btn" title="Redo (Ctrl+Y)" disabled>
+                    &#8631; Redo
+                </button>
+            </div>
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="save-btn" title="Export to File">
+                    &#128190; Export
+                </button>
+                <button class="toolbar-btn" id="load-btn" title="Import from File">
+                    &#128194; Import
+                </button>
+            </div>
+            <div class="toolbar-group">
+                <span style="color: var(--text-secondary); font-size: 12px;">
+                    Auto-saved to browser
+                </span>
+            </div>
+        </div>
+
+        <!-- Main Container -->
+        <div id="main-container">
+            <!-- Left Panel -->
+            <div id="left-panel">
+                <div class="panel-header">Elements</div>
+                <div id="elements-palette">
+                    <div class="element-item" draggable="true" data-type="container">
+                        <div class="element-icon container">&#9633;</div>
+                        <span>Container</span>
+                    </div>
+                    <div class="element-item" draggable="true" data-type="button">
+                        <div class="element-icon button">&#9634;</div>
+                        <span>Button</span>
+                    </div>
+                    <div class="element-item" draggable="true" data-type="image">
+                        <div class="element-icon image">&#128444;</div>
+                        <span>Image</span>
+                    </div>
+                    <div class="element-item" draggable="true" data-type="text">
+                        <div class="element-icon text">T</div>
+                        <span>Text</span>
+                    </div>
+                </div>
+                <div class="panel-header">Hierarchy</div>
+                <div id="hierarchy-panel">
+                    <div id="hierarchy-tree"></div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div id="canvas-container">
+                <div id="canvas-wrapper">
+                    <div id="canvas"></div>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div id="right-panel">
+                <div class="panel-header">Properties</div>
+                <div id="properties-panel">
+                    <div class="no-selection">Select an element to view properties</div>
+                </div>
+                <div class="panel-header">Variables</div>
+                <div id="variables-panel">
+                    <div class="variables-content">
+                        <div id="variables-list"></div>
+                        <button class="add-variable-btn" id="add-variable-btn">+ Add Variable</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Toolbar -->
+        <div id="bottom-toolbar">
+            <label>Grid Size:</label>
+            <input type="number" id="grid-size" value="10" min="1" max="100">
+            <label>px</label>
+            <span class="status-text" id="status-text">Ready</span>
+        </div>
+    </div>
+
+    <!-- Hidden file input for import -->
+    <input type="file" id="file-input" accept=".json" style="display: none;">
+
+    <script>
+        // ==================== STATE ====================
+        const state = {
+            canvasWidth: 1920,
+            canvasHeight: 1080,
+            gridSize: 10,
+            elements: [],
+            variables: [],
+            selectedElementId: null,
+            isPreviewMode: false,
+            clipboard: null,
+            undoStack: [],
+            redoStack: [],
+            nextElementId: 1,
+            variableValues: {}, // Current values during preview
+        };
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function generateId() {
+            return state.nextElementId++;
+        }
+
+        function snapToGrid(value) {
+            return Math.round(value / state.gridSize) * state.gridSize;
+        }
+
+        function deepClone(obj) {
+            return JSON.parse(JSON.stringify(obj));
+        }
+
+        function saveState() {
+            state.undoStack.push(deepClone({
+                elements: state.elements,
+                variables: state.variables,
+                nextElementId: state.nextElementId
+            }));
+            if (state.undoStack.length > 50) {
+                state.undoStack.shift();
+            }
+            state.redoStack = [];
+            updateUndoRedoButtons();
+            autoSave();
+        }
+
+        function undo() {
+            if (state.undoStack.length === 0) return;
+            state.redoStack.push(deepClone({
+                elements: state.elements,
+                variables: state.variables,
+                nextElementId: state.nextElementId
+            }));
+            const prevState = state.undoStack.pop();
+            state.elements = prevState.elements;
+            state.variables = prevState.variables;
+            state.nextElementId = prevState.nextElementId;
+            state.selectedElementId = null;
+            updateUndoRedoButtons();
+            renderAll();
+            autoSave();
+        }
+
+        function redo() {
+            if (state.redoStack.length === 0) return;
+            state.undoStack.push(deepClone({
+                elements: state.elements,
+                variables: state.variables,
+                nextElementId: state.nextElementId
+            }));
+            const nextState = state.redoStack.pop();
+            state.elements = nextState.elements;
+            state.variables = nextState.variables;
+            state.nextElementId = nextState.nextElementId;
+            state.selectedElementId = null;
+            updateUndoRedoButtons();
+            renderAll();
+            autoSave();
+        }
+
+        function updateUndoRedoButtons() {
+            document.getElementById('undo-btn').disabled = state.undoStack.length === 0;
+            document.getElementById('redo-btn').disabled = state.redoStack.length === 0;
+        }
+
+        function autoSave() {
+            const saveData = {
+                canvasWidth: state.canvasWidth,
+                canvasHeight: state.canvasHeight,
+                gridSize: state.gridSize,
+                elements: state.elements,
+                variables: state.variables,
+                nextElementId: state.nextElementId
+            };
+            localStorage.setItem('uibuilder_autosave', JSON.stringify(saveData));
+            document.getElementById('status-text').textContent = 'Auto-saved';
+            setTimeout(() => {
+                document.getElementById('status-text').textContent = 'Ready';
+            }, 1000);
+        }
+
+        function loadAutoSave() {
+            const saved = localStorage.getItem('uibuilder_autosave');
+            if (saved) {
+                try {
+                    return JSON.parse(saved);
+                } catch (e) {
+                    return null;
+                }
+            }
+            return null;
+        }
+
+        function exportToFile() {
+            const saveData = {
+                canvasWidth: state.canvasWidth,
+                canvasHeight: state.canvasHeight,
+                gridSize: state.gridSize,
+                elements: state.elements,
+                variables: state.variables,
+                nextElementId: state.nextElementId
+            };
+            const blob = new Blob([JSON.stringify(saveData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ui-project.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function importFromFile(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    loadProjectData(data);
+                } catch (err) {
+                    alert('Failed to load file: ' + err.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function loadProjectData(data) {
+            state.canvasWidth = data.canvasWidth || 1920;
+            state.canvasHeight = data.canvasHeight || 1080;
+            state.gridSize = data.gridSize || 10;
+            state.elements = data.elements || [];
+            state.variables = data.variables || [];
+            state.nextElementId = data.nextElementId || 1;
+            state.selectedElementId = null;
+            state.undoStack = [];
+            state.redoStack = [];
+
+            document.getElementById('grid-size').value = state.gridSize;
+            resizeCanvas();
+            renderAll();
+            autoSave();
+        }
+
+        // ==================== ELEMENT FUNCTIONS ====================
+        function createElement(type, x, y) {
+            const id = generateId();
+            const element = {
+                id,
+                type,
+                name: `${type.charAt(0).toUpperCase() + type.slice(1)}_${id}`,
+                x: x, // percentage
+                y: y, // percentage
+                width: type === 'text' ? 100 : 150, // pixels
+                height: type === 'text' ? 30 : (type === 'container' ? 200 : 50), // pixels
+                parentId: null,
+                properties: getDefaultProperties(type),
+                logic: type === 'button' ? { actions: [] } : { conditions: [] }
+            };
+            return element;
+        }
+
+        function getDefaultProperties(type) {
+            switch (type) {
+                case 'container':
+                    return {
+                        backgroundColor: 'rgba(86, 156, 214, 0.1)',
+                        borderColor: 'rgba(86, 156, 214, 0.5)',
+                        borderWidth: 1,
+                        padding: 0,
+                        clipChildren: false
+                    };
+                case 'button':
+                    return {
+                        text: 'Button',
+                        textColor: '#cccccc',
+                        backgroundColor: '#3c3c3c',
+                        borderColor: '#5a5a5a',
+                        borderWidth: 1,
+                        borderRadius: 4
+                    };
+                case 'image':
+                    return {
+                        placeholderColor: '#4a4a4a',
+                        borderColor: '#5a5a5a',
+                        borderWidth: 1
+                    };
+                case 'text':
+                    return {
+                        text: 'Text',
+                        textColor: '#cccccc',
+                        fontSize: 14,
+                        textAlign: 'left'
+                    };
+                default:
+                    return {};
+            }
+        }
+
+        function getElementById(id) {
+            return state.elements.find(el => el.id === id);
+        }
+
+        function getChildren(parentId) {
+            return state.elements.filter(el => el.parentId === parentId);
+        }
+
+        function getRootElements() {
+            return state.elements.filter(el => el.parentId === null);
+        }
+
+        function deleteElement(id) {
+            // Also delete children
+            const children = getChildren(id);
+            children.forEach(child => deleteElement(child.id));
+            state.elements = state.elements.filter(el => el.id !== id);
+            if (state.selectedElementId === id) {
+                state.selectedElementId = null;
+            }
+        }
+
+        function duplicateElement(element, offsetX = 20, offsetY = 20) {
+            const newElement = deepClone(element);
+            newElement.id = generateId();
+            newElement.name = `${element.name}_copy`;
+            newElement.x += (offsetX / state.canvasWidth) * 100;
+            newElement.y += (offsetY / state.canvasHeight) * 100;
+            return newElement;
+        }
+
+        // ==================== CANVAS RENDERING ====================
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            const wrapper = document.getElementById('canvas-wrapper');
+
+            const containerWidth = container.clientWidth - 40;
+            const containerHeight = container.clientHeight - 40;
+
+            const scaleX = containerWidth / state.canvasWidth;
+            const scaleY = containerHeight / state.canvasHeight;
+            const scale = Math.min(scaleX, scaleY, 1);
+
+            wrapper.style.width = (state.canvasWidth * scale) + 'px';
+            wrapper.style.height = (state.canvasHeight * scale) + 'px';
+
+            const canvas = document.getElementById('canvas');
+            canvas.style.transform = `scale(${scale})`;
+            canvas.style.transformOrigin = 'top left';
+            canvas.style.width = state.canvasWidth + 'px';
+            canvas.style.height = state.canvasHeight + 'px';
+
+            // Update grid pattern
+            const gridSize = state.gridSize;
+            wrapper.style.backgroundSize = `${gridSize * scale}px ${gridSize * scale}px`;
+            wrapper.style.backgroundImage = `
+                repeating-linear-gradient(0deg, transparent, transparent ${gridSize * scale - 1}px, #2a2a2a ${gridSize * scale - 1}px, #2a2a2a ${gridSize * scale}px),
+                repeating-linear-gradient(90deg, transparent, transparent ${gridSize * scale - 1}px, #2a2a2a ${gridSize * scale - 1}px, #2a2a2a ${gridSize * scale}px)
+            `;
+        }
+
+        function renderCanvas() {
+            const canvas = document.getElementById('canvas');
+            canvas.innerHTML = '';
+
+            // Sort elements by hierarchy order (children in front, lower index in front)
+            const sortedElements = getSortedElementsForRendering();
+
+            sortedElements.forEach(element => {
+                const el = createCanvasElement(element);
+                canvas.appendChild(el);
+            });
+        }
+
+        function getSortedElementsForRendering() {
+            // We need to render parents first, then children
+            // And within siblings, lower index = rendered later (on top)
+            const result = [];
+
+            function addElementsRecursive(parentId, depth) {
+                const children = state.elements.filter(el => el.parentId === parentId);
+                // Reverse so that first in array is rendered last (on top)
+                children.slice().reverse().forEach(child => {
+                    result.unshift({ element: child, depth });
+                    addElementsRecursive(child.id, depth + 1);
+                });
+            }
+
+            addElementsRecursive(null, 0);
+            return result.map(r => r.element);
+        }
+
+        function createCanvasElement(element) {
+            const el = document.createElement('div');
+            el.className = `canvas-element ${element.type}-el`;
+            el.dataset.id = element.id;
+
+            // Calculate absolute position
+            let absX = (element.x / 100) * state.canvasWidth;
+            let absY = (element.y / 100) * state.canvasHeight;
+
+            // If has parent, position is relative to parent
+            if (element.parentId) {
+                const parent = getElementById(element.parentId);
+                if (parent) {
+                    const parentAbsX = (parent.x / 100) * state.canvasWidth;
+                    const parentAbsY = (parent.y / 100) * state.canvasHeight;
+                    absX = parentAbsX + (element.x / 100) * parent.width;
+                    absY = parentAbsY + (element.y / 100) * parent.height;
+                }
+            }
+
+            el.style.left = absX + 'px';
+            el.style.top = absY + 'px';
+            el.style.width = element.width + 'px';
+            el.style.height = element.height + 'px';
+
+            // Apply type-specific styles
+            applyElementStyles(el, element);
+
+            // Selection state
+            if (element.id === state.selectedElementId && !state.isPreviewMode) {
+                el.classList.add('selected');
+                addResizeHandles(el);
+            }
+
+            // Preview mode visibility
+            if (state.isPreviewMode) {
+                const isVisible = evaluateVisibility(element);
+                if (!isVisible) {
+                    el.style.display = 'none';
+                }
+            }
+
+            return el;
+        }
+
+        function applyElementStyles(el, element) {
+            const props = element.properties;
+
+            switch (element.type) {
+                case 'container':
+                    el.style.backgroundColor = props.backgroundColor;
+                    el.style.borderColor = props.borderColor;
+                    el.style.borderWidth = props.borderWidth + 'px';
+                    el.style.borderStyle = 'dashed';
+                    if (props.clipChildren) {
+                        el.style.overflow = 'hidden';
+                    }
+                    break;
+                case 'button':
+                    el.style.backgroundColor = props.backgroundColor;
+                    el.style.borderColor = props.borderColor;
+                    el.style.borderWidth = props.borderWidth + 'px';
+                    el.style.borderStyle = 'solid';
+                    el.style.borderRadius = props.borderRadius + 'px';
+                    el.style.color = props.textColor;
+                    el.textContent = props.text;
+                    break;
+                case 'image':
+                    el.style.borderColor = props.borderColor;
+                    el.style.borderWidth = props.borderWidth + 'px';
+                    el.style.borderStyle = 'solid';
+                    el.innerHTML = '&#128444;';
+                    break;
+                case 'text':
+                    el.style.color = props.textColor;
+                    el.style.fontSize = props.fontSize + 'px';
+                    el.style.textAlign = props.textAlign;
+                    el.style.justifyContent = props.textAlign === 'center' ? 'center' : (props.textAlign === 'right' ? 'flex-end' : 'flex-start');
+                    el.textContent = props.text;
+                    break;
+            }
+        }
+
+        function addResizeHandles(el) {
+            ['nw', 'ne', 'sw', 'se'].forEach(pos => {
+                const handle = document.createElement('div');
+                handle.className = `resize-handle ${pos}`;
+                handle.dataset.handle = pos;
+                el.appendChild(handle);
+            });
+        }
+
+        // ==================== HIERARCHY RENDERING ====================
+        function renderHierarchy() {
+            const tree = document.getElementById('hierarchy-tree');
+            tree.innerHTML = '';
+
+            const rootElements = getRootElements();
+            rootElements.forEach(element => {
+                const item = createHierarchyItem(element, 0);
+                tree.appendChild(item);
+            });
+        }
+
+        function createHierarchyItem(element, depth) {
+            const container = document.createElement('div');
+            container.className = 'hierarchy-item-container';
+
+            const item = document.createElement('div');
+            item.className = 'hierarchy-item';
+            item.dataset.id = element.id;
+            item.style.paddingLeft = (depth * 16 + 8) + 'px';
+
+            if (element.id === state.selectedElementId) {
+                item.classList.add('selected');
+            }
+
+            const children = getChildren(element.id);
+
+            // Expand button
+            const expandBtn = document.createElement('span');
+            expandBtn.className = 'expand-btn';
+            if (children.length > 0) {
+                expandBtn.innerHTML = '&#9660;';
+            } else {
+                expandBtn.innerHTML = '&nbsp;';
+            }
+            item.appendChild(expandBtn);
+
+            // Icon
+            const icon = document.createElement('span');
+            icon.className = 'item-icon';
+            switch (element.type) {
+                case 'container': icon.innerHTML = '&#9633;'; break;
+                case 'button': icon.innerHTML = '&#9634;'; break;
+                case 'image': icon.innerHTML = '&#128444;'; break;
+                case 'text': icon.innerHTML = 'T'; break;
+            }
+            item.appendChild(icon);
+
+            // Name
+            const name = document.createElement('span');
+            name.className = 'item-name';
+            name.textContent = element.name;
+            item.appendChild(name);
+
+            container.appendChild(item);
+
+            // Children container
+            if (children.length > 0) {
+                const childrenContainer = document.createElement('div');
+                childrenContainer.className = 'hierarchy-children';
+                children.forEach(child => {
+                    childrenContainer.appendChild(createHierarchyItem(child, depth + 1));
+                });
+                container.appendChild(childrenContainer);
+            }
+
+            return container;
+        }
+
+        // ==================== PROPERTIES PANEL ====================
+        function renderProperties() {
+            const panel = document.getElementById('properties-panel');
+
+            if (!state.selectedElementId) {
+                panel.innerHTML = '<div class="no-selection">Select an element to view properties</div>';
+                return;
+            }
+
+            const element = getElementById(state.selectedElementId);
+            if (!element) {
+                panel.innerHTML = '<div class="no-selection">Select an element to view properties</div>';
+                return;
+            }
+
+            let html = '<div class="properties-content">';
+
+            // Transform group
+            html += `
+                <div class="property-group">
+                    <div class="property-group-title">Transform</div>
+                    <div class="property-row">
+                        <span class="property-label">Name</span>
+                        <input type="text" class="property-input" id="prop-name" value="${escapeHtml(element.name)}">
+                    </div>
+                    <div class="property-row">
+                        <span class="property-label">Position</span>
+                        <div class="property-row-double" style="flex:1">
+                            <input type="number" class="property-input" id="prop-x" value="${element.x.toFixed(1)}" step="0.1">
+                            <input type="number" class="property-input" id="prop-y" value="${element.y.toFixed(1)}" step="0.1">
+                        </div>
+                    </div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;margin-left:70px;">X% / Y%</div>
+                    <div class="property-row">
+                        <span class="property-label">Size</span>
+                        <div class="property-row-double" style="flex:1">
+                            <input type="number" class="property-input" id="prop-width" value="${element.width}">
+                            <input type="number" class="property-input" id="prop-height" value="${element.height}">
+                        </div>
+                    </div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;margin-left:70px;">Width px / Height px</div>
+                </div>
+            `;
+
+            // Type-specific properties
+            html += '<div class="property-group">';
+            html += `<div class="property-group-title">${element.type.charAt(0).toUpperCase() + element.type.slice(1)} Properties</div>`;
+
+            const props = element.properties;
+
+            switch (element.type) {
+                case 'container':
+                    html += `
+                        <div class="property-row">
+                            <span class="property-label">BG Color</span>
+                            <input type="color" class="property-color" id="prop-backgroundColor" value="${rgbaToHex(props.backgroundColor)}">
+                            <input type="text" class="property-input" style="margin-left:8px" id="prop-backgroundColor-text" value="${props.backgroundColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Border</span>
+                            <input type="color" class="property-color" id="prop-borderColor" value="${rgbaToHex(props.borderColor)}">
+                            <input type="number" class="property-input property-input-small" style="margin-left:8px" id="prop-borderWidth" value="${props.borderWidth}" min="0">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Padding</span>
+                            <input type="number" class="property-input property-input-small" id="prop-padding" value="${props.padding}" min="0">
+                        </div>
+                        <div class="property-row">
+                            <input type="checkbox" class="property-checkbox" id="prop-clipChildren" ${props.clipChildren ? 'checked' : ''}>
+                            <span class="property-label" style="width:auto">Clip Children</span>
+                        </div>
+                    `;
+                    break;
+                case 'button':
+                    html += `
+                        <div class="property-row">
+                            <span class="property-label">Text</span>
+                            <input type="text" class="property-input" id="prop-text" value="${escapeHtml(props.text)}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Text Color</span>
+                            <input type="color" class="property-color" id="prop-textColor" value="${props.textColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">BG Color</span>
+                            <input type="color" class="property-color" id="prop-backgroundColor" value="${props.backgroundColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Border</span>
+                            <input type="color" class="property-color" id="prop-borderColor" value="${props.borderColor}">
+                            <input type="number" class="property-input property-input-small" style="margin-left:8px" id="prop-borderWidth" value="${props.borderWidth}" min="0">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Radius</span>
+                            <input type="number" class="property-input property-input-small" id="prop-borderRadius" value="${props.borderRadius}" min="0">
+                        </div>
+                    `;
+                    break;
+                case 'image':
+                    html += `
+                        <div class="property-row">
+                            <span class="property-label">Placeholder</span>
+                            <input type="color" class="property-color" id="prop-placeholderColor" value="${props.placeholderColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Border</span>
+                            <input type="color" class="property-color" id="prop-borderColor" value="${props.borderColor}">
+                            <input type="number" class="property-input property-input-small" style="margin-left:8px" id="prop-borderWidth" value="${props.borderWidth}" min="0">
+                        </div>
+                    `;
+                    break;
+                case 'text':
+                    html += `
+                        <div class="property-row">
+                            <span class="property-label">Text</span>
+                            <input type="text" class="property-input" id="prop-text" value="${escapeHtml(props.text)}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Color</span>
+                            <input type="color" class="property-color" id="prop-textColor" value="${props.textColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Font Size</span>
+                            <input type="number" class="property-input property-input-small" id="prop-fontSize" value="${props.fontSize}" min="8">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Align</span>
+                            <select class="property-select" id="prop-textAlign">
+                                <option value="left" ${props.textAlign === 'left' ? 'selected' : ''}>Left</option>
+                                <option value="center" ${props.textAlign === 'center' ? 'selected' : ''}>Center</option>
+                                <option value="right" ${props.textAlign === 'right' ? 'selected' : ''}>Right</option>
+                            </select>
+                        </div>
+                    `;
+                    break;
+            }
+
+            html += '</div>';
+
+            // Logic section
+            html += '<div class="property-group">';
+            html += '<div class="property-group-title">Logic</div>';
+
+            if (element.type === 'button') {
+                html += renderButtonLogic(element);
+            } else {
+                html += renderVisibilityLogic(element);
+            }
+
+            html += '</div>';
+
+            html += '</div>';
+            panel.innerHTML = html;
+
+            // Attach property change handlers
+            attachPropertyHandlers(element);
+        }
+
+        function renderButtonLogic(element) {
+            let html = '<div class="logic-section"><div class="logic-title">On Click Actions</div>';
+
+            const actions = element.logic.actions || [];
+            actions.forEach((action, index) => {
+                html += `
+                    <div class="logic-action" data-index="${index}">
+                        <div class="logic-row">
+                            <span class="logic-label">Set</span>
+                            <select class="logic-select action-var" data-index="${index}">
+                                <option value="">-- Variable --</option>
+                                ${state.variables.map(v => `<option value="${v.name}" ${action.variable === v.name ? 'selected' : ''}>${v.name}</option>`).join('')}
+                            </select>
+                            <span class="logic-label">to</span>
+                            <select class="logic-select action-value" data-index="${index}">
+                                <option value="">-- Value --</option>
+                                ${getVariableValues(action.variable).map(val => `<option value="${val}" ${action.value === val ? 'selected' : ''}>${val}</option>`).join('')}
+                            </select>
+                            <button class="logic-delete" data-index="${index}">&times;</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += '<button class="add-logic-btn" id="add-action-btn">+ Add Action</button>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function renderVisibilityLogic(element) {
+            let html = '<div class="logic-section"><div class="logic-title">Visibility Conditions</div>';
+
+            const conditions = element.logic.conditions || [];
+            conditions.forEach((condition, index) => {
+                const varValues = getVariableValues(condition.variable);
+                html += `
+                    <div class="logic-condition" data-index="${index}">
+                        <div class="logic-row">
+                            ${index > 0 ? `
+                                <select class="logic-select condition-operator" data-index="${index}">
+                                    <option value="AND" ${condition.operator === 'AND' ? 'selected' : ''}>AND</option>
+                                    <option value="OR" ${condition.operator === 'OR' ? 'selected' : ''}>OR</option>
+                                </select>
+                            ` : ''}
+                            <span class="logic-label">If</span>
+                            <select class="logic-select condition-var" data-index="${index}">
+                                <option value="">-- Variable --</option>
+                                ${state.variables.map(v => `<option value="${v.name}" ${condition.variable === v.name ? 'selected' : ''}>${v.name}</option>`).join('')}
+                            </select>
+                            <span class="logic-label">is</span>
+                            <button class="logic-delete" data-index="${index}">&times;</button>
+                        </div>
+                        <div class="logic-row">
+                            <div class="value-checkboxes">
+                                ${varValues.map(val => `
+                                    <label class="value-checkbox-label">
+                                        <input type="checkbox" class="condition-value-check" data-index="${index}" data-value="${val}" ${(condition.values || []).includes(val) ? 'checked' : ''}>
+                                        ${val}
+                                    </label>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            if (conditions.length > 0) {
+                html += `
+                    <div class="logic-row" style="margin-top:8px">
+                        <span class="logic-label">Then</span>
+                        <select class="logic-select" id="condition-result">
+                            <option value="enable" ${element.logic.result === 'enable' ? 'selected' : ''}>Enable</option>
+                            <option value="disable" ${element.logic.result === 'disable' ? 'selected' : ''}>Disable</option>
+                        </select>
+                        <span class="logic-label">this element</span>
+                    </div>
+                `;
+            }
+
+            html += '<button class="add-logic-btn" id="add-condition-btn">+ Add Condition</button>';
+            html += '</div>';
+
+            return html;
+        }
+
+        function getVariableValues(varName) {
+            const variable = state.variables.find(v => v.name === varName);
+            return variable ? variable.values : [];
+        }
+
+        function attachPropertyHandlers(element) {
+            // Name
+            const nameInput = document.getElementById('prop-name');
+            if (nameInput) {
+                nameInput.addEventListener('change', () => {
+                    saveState();
+                    element.name = nameInput.value;
+                    renderHierarchy();
+                    autoSave();
+                });
+            }
+
+            // Position
+            ['x', 'y'].forEach(prop => {
+                const input = document.getElementById(`prop-${prop}`);
+                if (input) {
+                    input.addEventListener('change', () => {
+                        saveState();
+                        element[prop] = parseFloat(input.value);
+                        renderCanvas();
+                        autoSave();
+                    });
+                }
+            });
+
+            // Size
+            ['width', 'height'].forEach(prop => {
+                const input = document.getElementById(`prop-${prop}`);
+                if (input) {
+                    input.addEventListener('change', () => {
+                        saveState();
+                        element[prop] = parseInt(input.value);
+                        renderCanvas();
+                        autoSave();
+                    });
+                }
+            });
+
+            // Type-specific properties
+            Object.keys(element.properties).forEach(prop => {
+                const input = document.getElementById(`prop-${prop}`);
+                if (input) {
+                    input.addEventListener('change', () => {
+                        saveState();
+                        if (input.type === 'checkbox') {
+                            element.properties[prop] = input.checked;
+                        } else if (input.type === 'number') {
+                            element.properties[prop] = parseFloat(input.value);
+                        } else {
+                            element.properties[prop] = input.value;
+                        }
+                        renderCanvas();
+                        autoSave();
+                    });
+                }
+            });
+
+            // Background color text input
+            const bgColorText = document.getElementById('prop-backgroundColor-text');
+            if (bgColorText) {
+                bgColorText.addEventListener('change', () => {
+                    saveState();
+                    element.properties.backgroundColor = bgColorText.value;
+                    renderCanvas();
+                    autoSave();
+                });
+            }
+
+            // Button logic handlers
+            if (element.type === 'button') {
+                document.querySelectorAll('.action-var').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.actions[index].variable = e.target.value;
+                        element.logic.actions[index].value = '';
+                        renderProperties();
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.action-value').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.actions[index].value = e.target.value;
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.logic-action .logic-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.actions.splice(index, 1);
+                        renderProperties();
+                        autoSave();
+                    });
+                });
+
+                const addActionBtn = document.getElementById('add-action-btn');
+                if (addActionBtn) {
+                    addActionBtn.addEventListener('click', () => {
+                        saveState();
+                        element.logic.actions.push({ variable: '', value: '' });
+                        renderProperties();
+                        autoSave();
+                    });
+                }
+            } else {
+                // Visibility logic handlers
+                document.querySelectorAll('.condition-var').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.conditions[index].variable = e.target.value;
+                        element.logic.conditions[index].values = [];
+                        renderProperties();
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.condition-operator').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.conditions[index].operator = e.target.value;
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.condition-value-check').forEach(checkbox => {
+                    checkbox.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        const value = e.target.dataset.value;
+                        saveState();
+                        if (!element.logic.conditions[index].values) {
+                            element.logic.conditions[index].values = [];
+                        }
+                        if (e.target.checked) {
+                            element.logic.conditions[index].values.push(value);
+                        } else {
+                            element.logic.conditions[index].values = element.logic.conditions[index].values.filter(v => v !== value);
+                        }
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.logic-condition .logic-delete').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.conditions.splice(index, 1);
+                        renderProperties();
+                        autoSave();
+                    });
+                });
+
+                const conditionResult = document.getElementById('condition-result');
+                if (conditionResult) {
+                    conditionResult.addEventListener('change', () => {
+                        saveState();
+                        element.logic.result = conditionResult.value;
+                        autoSave();
+                    });
+                }
+
+                const addConditionBtn = document.getElementById('add-condition-btn');
+                if (addConditionBtn) {
+                    addConditionBtn.addEventListener('click', () => {
+                        saveState();
+                        element.logic.conditions.push({
+                            variable: '',
+                            values: [],
+                            operator: 'AND'
+                        });
+                        if (!element.logic.result) {
+                            element.logic.result = 'enable';
+                        }
+                        renderProperties();
+                        autoSave();
+                    });
+                }
+            }
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function rgbaToHex(rgba) {
+            if (rgba.startsWith('#')) return rgba;
+            const match = rgba.match(/[\d.]+/g);
+            if (!match) return '#000000';
+            const r = parseInt(match[0]);
+            const g = parseInt(match[1]);
+            const b = parseInt(match[2]);
+            return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        }
+
+        // ==================== VARIABLES PANEL ====================
+        function renderVariables() {
+            const list = document.getElementById('variables-list');
+            let html = '';
+
+            state.variables.forEach((variable, varIndex) => {
+                html += `
+                    <div class="variable-item" data-index="${varIndex}">
+                        <div class="variable-header">
+                            <span class="variable-expand">&#9660;</span>
+                            <span class="variable-name">${escapeHtml(variable.name)}</span>
+                            <button class="variable-delete" data-index="${varIndex}">&times;</button>
+                        </div>
+                        <div class="variable-values">
+                            ${variable.values.map((value, valIndex) => `
+                                <div class="variable-value-item">
+                                    <input type="radio" class="default-radio" name="default-${varIndex}" data-var="${varIndex}" data-val="${valIndex}" ${variable.defaultValue === value ? 'checked' : ''} title="Set as default">
+                                    <input type="text" value="${escapeHtml(value)}" data-var="${varIndex}" data-val="${valIndex}" class="value-input">
+                                    <button class="delete-value" data-var="${varIndex}" data-val="${valIndex}">&times;</button>
+                                </div>
+                            `).join('')}
+                            <button class="add-value-btn" data-index="${varIndex}">+ Add Value</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = html;
+
+            // Attach handlers
+            document.querySelectorAll('.variable-delete').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = parseInt(e.target.dataset.index);
+                    saveState();
+                    state.variables.splice(index, 1);
+                    renderVariables();
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
+            document.querySelectorAll('.value-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const varIndex = parseInt(e.target.dataset.var);
+                    const valIndex = parseInt(e.target.dataset.val);
+                    const oldValue = state.variables[varIndex].values[valIndex];
+                    saveState();
+                    state.variables[varIndex].values[valIndex] = e.target.value;
+                    if (state.variables[varIndex].defaultValue === oldValue) {
+                        state.variables[varIndex].defaultValue = e.target.value;
+                    }
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
+            document.querySelectorAll('.default-radio').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    const varIndex = parseInt(e.target.dataset.var);
+                    const valIndex = parseInt(e.target.dataset.val);
+                    saveState();
+                    state.variables[varIndex].defaultValue = state.variables[varIndex].values[valIndex];
+                    autoSave();
+                });
+            });
+
+            document.querySelectorAll('.delete-value').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const varIndex = parseInt(e.target.dataset.var);
+                    const valIndex = parseInt(e.target.dataset.val);
+                    if (state.variables[varIndex].values.length <= 1) {
+                        alert('Variable must have at least one value');
+                        return;
+                    }
+                    saveState();
+                    const removedValue = state.variables[varIndex].values.splice(valIndex, 1)[0];
+                    if (state.variables[varIndex].defaultValue === removedValue) {
+                        state.variables[varIndex].defaultValue = state.variables[varIndex].values[0];
+                    }
+                    renderVariables();
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
+            document.querySelectorAll('.add-value-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    saveState();
+                    state.variables[index].values.push(`value${state.variables[index].values.length + 1}`);
+                    renderVariables();
+                    renderProperties();
+                    autoSave();
+                });
+            });
+        }
+
+        // ==================== PREVIEW MODE ====================
+        function enterPreviewMode() {
+            state.isPreviewMode = true;
+            document.body.classList.add('preview-mode');
+            document.getElementById('preview-btn').style.display = 'none';
+            document.getElementById('stop-preview-btn').style.display = '';
+            document.getElementById('reset-vars-btn').style.display = '';
+
+            // Initialize variable values to defaults
+            resetVariableValues();
+
+            state.selectedElementId = null;
+            renderAll();
+        }
+
+        function exitPreviewMode() {
+            state.isPreviewMode = false;
+            document.body.classList.remove('preview-mode');
+            document.getElementById('preview-btn').style.display = '';
+            document.getElementById('stop-preview-btn').style.display = 'none';
+            document.getElementById('reset-vars-btn').style.display = 'none';
+            renderAll();
+        }
+
+        function resetVariableValues() {
+            state.variableValues = {};
+            state.variables.forEach(variable => {
+                state.variableValues[variable.name] = variable.defaultValue || variable.values[0];
+            });
+        }
+
+        function setVariableValue(varName, value) {
+            state.variableValues[varName] = value;
+            renderCanvas(); // Re-render to apply visibility changes
+        }
+
+        function evaluateVisibility(element) {
+            const conditions = element.logic.conditions || [];
+            if (conditions.length === 0) return true;
+
+            let result = null;
+
+            for (let i = 0; i < conditions.length; i++) {
+                const condition = conditions[i];
+                const currentValue = state.variableValues[condition.variable];
+                const conditionMet = (condition.values || []).includes(currentValue);
+
+                if (i === 0) {
+                    result = conditionMet;
+                } else {
+                    if (condition.operator === 'AND') {
+                        result = result && conditionMet;
+                    } else {
+                        result = result || conditionMet;
+                    }
+                }
+            }
+
+            // Apply result based on enable/disable setting
+            if (element.logic.result === 'disable') {
+                return !result;
+            }
+            return result;
+        }
+
+        function handleButtonClick(element) {
+            if (!state.isPreviewMode) return;
+
+            const actions = element.logic.actions || [];
+            actions.forEach(action => {
+                if (action.variable && action.value) {
+                    setVariableValue(action.variable, action.value);
+                }
+            });
+        }
+
+        // ==================== EVENT HANDLERS ====================
+        function renderAll() {
+            renderCanvas();
+            renderHierarchy();
+            renderProperties();
+            renderVariables();
+        }
+
+        // Drag from palette
+        let draggedType = null;
+
+        document.querySelectorAll('.element-item[draggable]').forEach(item => {
+            item.addEventListener('dragstart', (e) => {
+                draggedType = e.target.dataset.type;
+                e.dataTransfer.effectAllowed = 'copy';
+            });
+
+            item.addEventListener('dragend', () => {
+                draggedType = null;
+            });
+        });
+
+        // Canvas drop handling
+        document.getElementById('canvas').addEventListener('dragover', (e) => {
+            if (draggedType) {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'copy';
+            }
+        });
+
+        document.getElementById('canvas').addEventListener('drop', (e) => {
+            if (draggedType && !state.isPreviewMode) {
+                e.preventDefault();
+                const canvas = document.getElementById('canvas');
+                const rect = canvas.getBoundingClientRect();
+                const scale = state.canvasWidth / rect.width;
+
+                let x = (e.clientX - rect.left) * scale;
+                let y = (e.clientY - rect.top) * scale;
+
+                x = snapToGrid(x);
+                y = snapToGrid(y);
+
+                // Convert to percentage
+                const xPercent = (x / state.canvasWidth) * 100;
+                const yPercent = (y / state.canvasHeight) * 100;
+
+                saveState();
+                const element = createElement(draggedType, xPercent, yPercent);
+                state.elements.push(element);
+                state.selectedElementId = element.id;
+
+                renderAll();
+                autoSave();
+            }
+        });
+
+        // Canvas element selection and dragging
+        let isDragging = false;
+        let isResizing = false;
+        let resizeHandle = null;
+        let dragStartX, dragStartY;
+        let elementStartX, elementStartY, elementStartWidth, elementStartHeight;
+
+        document.getElementById('canvas').addEventListener('mousedown', (e) => {
+            if (state.isPreviewMode) {
+                // Handle button clicks in preview mode
+                const elementEl = e.target.closest('.canvas-element');
+                if (elementEl && elementEl.classList.contains('button-el')) {
+                    const element = getElementById(parseInt(elementEl.dataset.id));
+                    if (element) {
+                        handleButtonClick(element);
+                    }
+                }
+                return;
+            }
+
+            // Check if clicking on resize handle
+            if (e.target.classList.contains('resize-handle')) {
+                isResizing = true;
+                resizeHandle = e.target.dataset.handle;
+                const elementEl = e.target.closest('.canvas-element');
+                const element = getElementById(parseInt(elementEl.dataset.id));
+
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                elementStartX = element.x;
+                elementStartY = element.y;
+                elementStartWidth = element.width;
+                elementStartHeight = element.height;
+
+                saveState();
+                e.preventDefault();
+                return;
+            }
+
+            // Check if clicking on element
+            const elementEl = e.target.closest('.canvas-element');
+            if (elementEl) {
+                const elementId = parseInt(elementEl.dataset.id);
+                state.selectedElementId = elementId;
+
+                isDragging = true;
+                const element = getElementById(elementId);
+
+                dragStartX = e.clientX;
+                dragStartY = e.clientY;
+                elementStartX = element.x;
+                elementStartY = element.y;
+
+                saveState();
+                renderAll();
+                e.preventDefault();
+            } else {
+                // Clicked on empty canvas
+                state.selectedElementId = null;
+                renderAll();
+            }
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (state.isPreviewMode) return;
+
+            const canvas = document.getElementById('canvas');
+            const rect = canvas.getBoundingClientRect();
+            const scale = state.canvasWidth / rect.width;
+
+            if (isDragging && state.selectedElementId) {
+                const element = getElementById(state.selectedElementId);
+                const deltaX = (e.clientX - dragStartX) * scale;
+                const deltaY = (e.clientY - dragStartY) * scale;
+
+                let newX, newY;
+
+                if (element.parentId) {
+                    const parent = getElementById(element.parentId);
+                    newX = elementStartX + (deltaX / parent.width) * 100;
+                    newY = elementStartY + (deltaY / parent.height) * 100;
+                } else {
+                    newX = elementStartX + (deltaX / state.canvasWidth) * 100;
+                    newY = elementStartY + (deltaY / state.canvasHeight) * 100;
+                }
+
+                // Snap to grid (convert back to pixels, snap, convert to %)
+                let pixelX, pixelY;
+                if (element.parentId) {
+                    const parent = getElementById(element.parentId);
+                    pixelX = (newX / 100) * parent.width;
+                    pixelY = (newY / 100) * parent.height;
+                    pixelX = snapToGrid(pixelX);
+                    pixelY = snapToGrid(pixelY);
+                    element.x = (pixelX / parent.width) * 100;
+                    element.y = (pixelY / parent.height) * 100;
+                } else {
+                    pixelX = (newX / 100) * state.canvasWidth;
+                    pixelY = (newY / 100) * state.canvasHeight;
+                    pixelX = snapToGrid(pixelX);
+                    pixelY = snapToGrid(pixelY);
+                    element.x = (pixelX / state.canvasWidth) * 100;
+                    element.y = (pixelY / state.canvasHeight) * 100;
+                }
+
+                renderCanvas();
+                renderProperties();
+            }
+
+            if (isResizing && state.selectedElementId) {
+                const element = getElementById(state.selectedElementId);
+                const deltaX = (e.clientX - dragStartX) * scale;
+                const deltaY = (e.clientY - dragStartY) * scale;
+
+                let newWidth = elementStartWidth;
+                let newHeight = elementStartHeight;
+                let newX = elementStartX;
+                let newY = elementStartY;
+
+                if (resizeHandle.includes('e')) {
+                    newWidth = elementStartWidth + deltaX;
+                }
+                if (resizeHandle.includes('w')) {
+                    newWidth = elementStartWidth - deltaX;
+                    if (element.parentId) {
+                        const parent = getElementById(element.parentId);
+                        newX = elementStartX + (deltaX / parent.width) * 100;
+                    } else {
+                        newX = elementStartX + (deltaX / state.canvasWidth) * 100;
+                    }
+                }
+                if (resizeHandle.includes('s')) {
+                    newHeight = elementStartHeight + deltaY;
+                }
+                if (resizeHandle.includes('n')) {
+                    newHeight = elementStartHeight - deltaY;
+                    if (element.parentId) {
+                        const parent = getElementById(element.parentId);
+                        newY = elementStartY + (deltaY / parent.height) * 100;
+                    } else {
+                        newY = elementStartY + (deltaY / state.canvasHeight) * 100;
+                    }
+                }
+
+                // Snap width/height to grid
+                newWidth = Math.max(state.gridSize, snapToGrid(newWidth));
+                newHeight = Math.max(state.gridSize, snapToGrid(newHeight));
+
+                element.width = newWidth;
+                element.height = newHeight;
+                element.x = newX;
+                element.y = newY;
+
+                renderCanvas();
+                renderProperties();
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (isDragging || isResizing) {
+                autoSave();
+            }
+            isDragging = false;
+            isResizing = false;
+            resizeHandle = null;
+        });
+
+        // Hierarchy selection
+        document.getElementById('hierarchy-tree').addEventListener('click', (e) => {
+            const item = e.target.closest('.hierarchy-item');
+            if (item && !state.isPreviewMode) {
+                state.selectedElementId = parseInt(item.dataset.id);
+                renderAll();
+            }
+        });
+
+        // Hierarchy double-click to rename
+        document.getElementById('hierarchy-tree').addEventListener('dblclick', (e) => {
+            if (state.isPreviewMode) return;
+
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                const nameSpan = item.querySelector('.item-name');
+                const element = getElementById(parseInt(item.dataset.id));
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'rename-input';
+                input.value = element.name;
+
+                nameSpan.replaceWith(input);
+                input.focus();
+                input.select();
+
+                const finishRename = () => {
+                    saveState();
+                    element.name = input.value || element.name;
+                    renderHierarchy();
+                    renderProperties();
+                    autoSave();
+                };
+
+                input.addEventListener('blur', finishRename);
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    } else if (e.key === 'Escape') {
+                        input.value = element.name;
+                        input.blur();
+                    }
+                });
+            }
+        });
+
+        // Hierarchy drag and drop for parenting/reordering
+        let hierarchyDraggedId = null;
+
+        document.getElementById('hierarchy-tree').addEventListener('dragstart', (e) => {
+            if (state.isPreviewMode) return;
+
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                hierarchyDraggedId = parseInt(item.dataset.id);
+                e.dataTransfer.effectAllowed = 'move';
+            }
+        });
+
+        document.getElementById('hierarchy-tree').addEventListener('dragover', (e) => {
+            if (!hierarchyDraggedId) return;
+            e.preventDefault();
+
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                document.querySelectorAll('.hierarchy-item').forEach(i => i.classList.remove('drag-over'));
+                item.classList.add('drag-over');
+            }
+        });
+
+        document.getElementById('hierarchy-tree').addEventListener('dragleave', (e) => {
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                item.classList.remove('drag-over');
+            }
+        });
+
+        document.getElementById('hierarchy-tree').addEventListener('drop', (e) => {
+            if (!hierarchyDraggedId) return;
+            e.preventDefault();
+
+            const targetItem = e.target.closest('.hierarchy-item');
+            document.querySelectorAll('.hierarchy-item').forEach(i => i.classList.remove('drag-over'));
+
+            if (targetItem) {
+                const targetId = parseInt(targetItem.dataset.id);
+                if (targetId !== hierarchyDraggedId) {
+                    const draggedElement = getElementById(hierarchyDraggedId);
+                    const targetElement = getElementById(targetId);
+
+                    // Check if target is a descendant of dragged (prevent circular parenting)
+                    let parent = targetElement;
+                    let isDescendant = false;
+                    while (parent) {
+                        if (parent.id === hierarchyDraggedId) {
+                            isDescendant = true;
+                            break;
+                        }
+                        parent = parent.parentId ? getElementById(parent.parentId) : null;
+                    }
+
+                    if (!isDescendant) {
+                        saveState();
+
+                        // Determine if we're parenting or reordering
+                        if (targetElement.type === 'container' || e.ctrlKey) {
+                            // Parent to container
+                            draggedElement.parentId = targetId;
+
+                            // Recalculate position relative to new parent
+                            const oldAbsX = (draggedElement.x / 100) * state.canvasWidth;
+                            const oldAbsY = (draggedElement.y / 100) * state.canvasHeight;
+                            const parentAbsX = (targetElement.x / 100) * state.canvasWidth;
+                            const parentAbsY = (targetElement.y / 100) * state.canvasHeight;
+
+                            draggedElement.x = ((oldAbsX - parentAbsX) / targetElement.width) * 100;
+                            draggedElement.y = ((oldAbsY - parentAbsY) / targetElement.height) * 100;
+                        } else {
+                            // Reorder - place after target
+                            const targetIndex = state.elements.indexOf(targetElement);
+                            const draggedIndex = state.elements.indexOf(draggedElement);
+
+                            state.elements.splice(draggedIndex, 1);
+                            const newIndex = targetIndex > draggedIndex ? targetIndex : targetIndex + 1;
+                            state.elements.splice(newIndex, 0, draggedElement);
+
+                            // Match parent
+                            if (draggedElement.parentId !== targetElement.parentId) {
+                                draggedElement.parentId = targetElement.parentId;
+                            }
+                        }
+
+                        renderAll();
+                        autoSave();
+                    }
+                }
+            }
+
+            hierarchyDraggedId = null;
+        });
+
+        // Make hierarchy items draggable
+        document.getElementById('hierarchy-tree').addEventListener('mousedown', (e) => {
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                item.setAttribute('draggable', 'true');
+            }
+        });
+
+        document.getElementById('hierarchy-tree').addEventListener('mouseup', (e) => {
+            const item = e.target.closest('.hierarchy-item');
+            if (item) {
+                item.removeAttribute('draggable');
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Ignore if typing in input
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                return;
+            }
+
+            if (state.isPreviewMode) {
+                if (e.key === 'Escape' || e.key === 'p' || e.key === 'P') {
+                    exitPreviewMode();
+                }
+                return;
+            }
+
+            // Preview mode toggle
+            if (e.key === 'p' || e.key === 'P') {
+                enterPreviewMode();
+                return;
+            }
+
+            // Undo/Redo
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+                return;
+            }
+            if (e.ctrlKey && e.key === 'y') {
+                e.preventDefault();
+                redo();
+                return;
+            }
+
+            // Delete
+            if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedElementId) {
+                saveState();
+                deleteElement(state.selectedElementId);
+                state.selectedElementId = null;
+                renderAll();
+                autoSave();
+                return;
+            }
+
+            // Copy
+            if (e.ctrlKey && e.key === 'c' && state.selectedElementId) {
+                const element = getElementById(state.selectedElementId);
+                state.clipboard = deepClone(element);
+                return;
+            }
+
+            // Paste
+            if (e.ctrlKey && e.key === 'v' && state.clipboard) {
+                const canvas = document.getElementById('canvas');
+                const rect = canvas.getBoundingClientRect();
+
+                // Get mouse position relative to canvas
+                // For simplicity, paste at center if no mouse tracking
+                saveState();
+                const newElement = duplicateElement(state.clipboard, 20, 20);
+                newElement.parentId = null; // Paste at root
+                state.elements.push(newElement);
+                state.selectedElementId = newElement.id;
+                renderAll();
+                autoSave();
+                return;
+            }
+
+            // Arrow keys nudge
+            if (state.selectedElementId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                e.preventDefault();
+                saveState();
+                const element = getElementById(state.selectedElementId);
+                const nudgeAmount = state.gridSize;
+
+                let deltaX = 0, deltaY = 0;
+                if (e.key === 'ArrowUp') deltaY = -nudgeAmount;
+                if (e.key === 'ArrowDown') deltaY = nudgeAmount;
+                if (e.key === 'ArrowLeft') deltaX = -nudgeAmount;
+                if (e.key === 'ArrowRight') deltaX = nudgeAmount;
+
+                if (element.parentId) {
+                    const parent = getElementById(element.parentId);
+                    element.x += (deltaX / parent.width) * 100;
+                    element.y += (deltaY / parent.height) * 100;
+                } else {
+                    element.x += (deltaX / state.canvasWidth) * 100;
+                    element.y += (deltaY / state.canvasHeight) * 100;
+                }
+
+                renderCanvas();
+                renderProperties();
+                autoSave();
+                return;
+            }
+
+            // Escape to deselect
+            if (e.key === 'Escape') {
+                state.selectedElementId = null;
+                renderAll();
+            }
+        });
+
+        // Toolbar buttons
+        document.getElementById('preview-btn').addEventListener('click', enterPreviewMode);
+        document.getElementById('stop-preview-btn').addEventListener('click', exitPreviewMode);
+        document.getElementById('reset-vars-btn').addEventListener('click', () => {
+            resetVariableValues();
+            renderCanvas();
+        });
+        document.getElementById('undo-btn').addEventListener('click', undo);
+        document.getElementById('redo-btn').addEventListener('click', redo);
+        document.getElementById('save-btn').addEventListener('click', exportToFile);
+        document.getElementById('load-btn').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+
+        document.getElementById('file-input').addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                importFromFile(e.target.files[0]);
+            }
+            e.target.value = '';
+        });
+
+        // Add variable button
+        document.getElementById('add-variable-btn').addEventListener('click', () => {
+            saveState();
+            const name = `Variable${state.variables.length + 1}`;
+            state.variables.push({
+                name,
+                values: ['value1', 'value2'],
+                defaultValue: 'value1'
+            });
+            renderVariables();
+            renderProperties();
+            autoSave();
+        });
+
+        // Grid size change
+        document.getElementById('grid-size').addEventListener('change', (e) => {
+            state.gridSize = parseInt(e.target.value) || 10;
+            resizeCanvas();
+            autoSave();
+        });
+
+        // Window resize
+        window.addEventListener('resize', resizeCanvas);
+
+        // ==================== INITIALIZATION ====================
+
+        // Resolution dialog
+        document.getElementById('resolution-preset').addEventListener('change', (e) => {
+            const custom = document.getElementById('custom-resolution');
+            custom.style.display = e.target.value === 'custom' ? 'flex' : 'none';
+        });
+
+        document.getElementById('create-project-btn').addEventListener('click', () => {
+            const preset = document.getElementById('resolution-preset').value;
+
+            if (preset === 'custom') {
+                state.canvasWidth = parseInt(document.getElementById('custom-width').value) || 1920;
+                state.canvasHeight = parseInt(document.getElementById('custom-height').value) || 1080;
+            } else {
+                const [w, h] = preset.split('x').map(Number);
+                state.canvasWidth = w;
+                state.canvasHeight = h;
+            }
+
+            document.getElementById('resolution-dialog').style.display = 'none';
+            document.getElementById('app').style.display = 'flex';
+            resizeCanvas();
+            autoSave();
+        });
+
+        document.getElementById('load-existing-btn').addEventListener('click', () => {
+            const saved = loadAutoSave();
+            if (saved) {
+                document.getElementById('resolution-dialog').style.display = 'none';
+                document.getElementById('app').style.display = 'flex';
+                loadProjectData(saved);
+            } else {
+                alert('No saved project found');
+            }
+        });
+
+        // Check for existing save on load
+        const existingSave = loadAutoSave();
+        if (existingSave) {
+            document.getElementById('load-existing-btn').textContent = 'Load Existing Project';
+        } else {
+            document.getElementById('load-existing-btn').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
