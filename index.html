@@ -318,8 +318,76 @@
             padding: 4px;
         }
 
+        .canvas-element.slider-el {
+            background: transparent;
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+        }
+
+        .slider-track {
+            width: 100%;
+            height: 8px;
+            background: #3c3c3c;
+            border-radius: 4px;
+            position: relative;
+            border: 1px solid #5a5a5a;
+        }
+
+        .slider-fill {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px 0 0 4px;
+            pointer-events: none;
+        }
+
+        .slider-thumb {
+            position: absolute;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            background: #ffffff;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            cursor: grab;
+            z-index: 2;
+        }
+
+        .slider-thumb:active {
+            cursor: grabbing;
+        }
+
+        .slider-value-display {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 11px;
+            color: var(--text-primary);
+            background: var(--bg-panel);
+            padding: 2px 6px;
+            border-radius: 3px;
+            white-space: nowrap;
+        }
+
         .canvas-element.hidden-in-preview {
             opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Pivot indicator */
+        .pivot-indicator {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff6b6b;
+            border: 1px solid #fff;
+            border-radius: 50%;
+            z-index: 1001;
             pointer-events: none;
         }
 
@@ -431,13 +499,88 @@
             font-size: 12px;
         }
 
+        .insert-var-container {
+            display: flex;
+            flex: 1;
+            gap: 4px;
+        }
+
+        .insert-var-select {
+            flex: 1;
+            font-size: 11px;
+        }
+
+        .insert-var-btn {
+            background: var(--accent);
+            border: none;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .insert-var-btn:hover {
+            background: var(--accent-hover);
+        }
+
+        .insert-var-btn:disabled {
+            background: var(--bg-hover);
+            cursor: not-allowed;
+        }
+
         .property-checkbox {
             margin-right: 8px;
         }
 
+        /* Pivot selector */
+        .pivot-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 24px);
+            gap: 2px;
+            background: var(--bg-dark);
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+        }
+
+        .pivot-btn {
+            width: 24px;
+            height: 24px;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            border-radius: 2px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pivot-btn:hover {
+            background: var(--bg-hover);
+        }
+
+        .pivot-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .pivot-btn::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+        }
+
+        .pivot-btn.active::after {
+            background: white;
+        }
+
         /* Variables Panel */
         #variables-panel {
-            height: 250px;
+            height: 280px;
             min-height: 150px;
             overflow-y: auto;
         }
@@ -458,7 +601,7 @@
             display: flex;
             align-items: center;
             padding: 8px;
-            cursor: pointer;
+            gap: 8px;
         }
 
         .variable-header:hover {
@@ -469,11 +612,38 @@
             width: 16px;
             font-size: 10px;
             color: var(--text-secondary);
+            cursor: pointer;
         }
 
-        .variable-name {
+        .variable-name-input {
             flex: 1;
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
             font-size: 13px;
+        }
+
+        .variable-name-input:focus {
+            border-color: var(--accent);
+            outline: none;
+        }
+
+        .variable-mode-badge {
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: var(--accent);
+            color: white;
+        }
+
+        .variable-mode-badge.multiple {
+            background: #9c27b0;
+        }
+
+        .variable-mode-badge.slider {
+            background: #ff9800;
         }
 
         .variable-delete {
@@ -495,6 +665,29 @@
             border-top: 1px solid var(--border-color);
         }
 
+        .variable-mode-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 8px;
+        }
+
+        .variable-mode-row label {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .variable-mode-row select {
+            background: var(--bg-panel);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
         .variable-value-item {
             display: flex;
             align-items: center;
@@ -502,7 +695,7 @@
             padding: 4px 0;
         }
 
-        .variable-value-item input {
+        .variable-value-item input[type="text"] {
             flex: 1;
             background: var(--bg-panel);
             border: 1px solid var(--border-color);
@@ -512,7 +705,8 @@
             font-size: 12px;
         }
 
-        .variable-value-item .default-radio {
+        .variable-value-item .default-radio,
+        .variable-value-item .default-check {
             cursor: pointer;
         }
 
@@ -921,6 +1115,10 @@
                         <div class="element-icon text">T</div>
                         <span>Text</span>
                     </div>
+                    <div class="element-item" draggable="true" data-type="slider">
+                        <div class="element-icon slider">&#9644;</div>
+                        <span>Slider</span>
+                    </div>
                 </div>
                 <div class="panel-header">Hierarchy</div>
                 <div id="hierarchy-panel">
@@ -977,7 +1175,23 @@
             undoStack: [],
             redoStack: [],
             nextElementId: 1,
-            variableValues: {}, // Current values during preview
+            variableValues: {}, // Current values during preview (for single: string, for multiple: Set as array)
+        };
+
+        // Pivot positions: 0-8 representing 3x3 grid
+        // 0=top-left, 1=top-center, 2=top-right
+        // 3=middle-left, 4=center, 5=middle-right
+        // 6=bottom-left, 7=bottom-center, 8=bottom-right
+        const PIVOT_OFFSETS = {
+            0: { x: 0, y: 0 },
+            1: { x: 0.5, y: 0 },
+            2: { x: 1, y: 0 },
+            3: { x: 0, y: 0.5 },
+            4: { x: 0.5, y: 0.5 },
+            5: { x: 1, y: 0.5 },
+            6: { x: 0, y: 1 },
+            7: { x: 0.5, y: 1 },
+            8: { x: 1, y: 1 }
         };
 
         // ==================== UTILITY FUNCTIONS ====================
@@ -1116,6 +1330,23 @@
             state.undoStack = [];
             state.redoStack = [];
 
+            // Migrate old elements without pivot
+            state.elements.forEach(el => {
+                if (el.pivot === undefined) {
+                    el.pivot = 0; // Default to top-left
+                }
+            });
+
+            // Migrate old variables without mode
+            state.variables.forEach(v => {
+                if (v.mode === undefined) {
+                    v.mode = 'single';
+                }
+                if (v.mode === 'multiple' && !Array.isArray(v.defaultValues)) {
+                    v.defaultValues = v.defaultValue ? [v.defaultValue] : [];
+                }
+            });
+
             document.getElementById('grid-size').value = state.gridSize;
             resizeCanvas();
             renderAll();
@@ -1125,14 +1356,17 @@
         // ==================== ELEMENT FUNCTIONS ====================
         function createElement(type, x, y) {
             const id = generateId();
+            const widths = { text: 100, container: 150, slider: 200, button: 150, image: 150 };
+            const heights = { text: 30, container: 200, slider: 40, button: 50, image: 50 };
             const element = {
                 id,
                 type,
                 name: `${type.charAt(0).toUpperCase() + type.slice(1)}_${id}`,
                 x: x, // percentage
                 y: y, // percentage
-                width: type === 'text' ? 100 : 150, // pixels
-                height: type === 'text' ? 30 : (type === 'container' ? 200 : 50), // pixels
+                width: widths[type] || 150, // pixels
+                height: heights[type] || 50, // pixels
+                pivot: 0, // top-left by default
                 parentId: null,
                 properties: getDefaultProperties(type),
                 logic: type === 'button' ? { actions: [] } : { conditions: [] }
@@ -1172,6 +1406,17 @@
                         fontSize: 14,
                         textAlign: 'left'
                     };
+                case 'slider':
+                    return {
+                        variable: '', // bound variable name
+                        minValue: 0,
+                        maxValue: 100,
+                        step: 1,
+                        trackColor: '#3c3c3c',
+                        fillColor: '#0e639c',
+                        thumbColor: '#ffffff',
+                        showValue: true
+                    };
                 default:
                     return {};
             }
@@ -1190,7 +1435,6 @@
         }
 
         function deleteElement(id) {
-            // Also delete children
             const children = getChildren(id);
             children.forEach(child => deleteElement(child.id));
             state.elements = state.elements.filter(el => el.id !== id);
@@ -1229,7 +1473,6 @@
             canvas.style.width = state.canvasWidth + 'px';
             canvas.style.height = state.canvasHeight + 'px';
 
-            // Update grid pattern
             const gridSize = state.gridSize;
             wrapper.style.backgroundSize = `${gridSize * scale}px ${gridSize * scale}px`;
             wrapper.style.backgroundImage = `
@@ -1242,31 +1485,61 @@
             const canvas = document.getElementById('canvas');
             canvas.innerHTML = '';
 
-            // Sort elements by hierarchy order (children in front, lower index in front)
             const sortedElements = getSortedElementsForRendering();
 
-            sortedElements.forEach(element => {
+            sortedElements.forEach((element, index) => {
                 const el = createCanvasElement(element);
+                // Explicit z-index ensures children render in front of parents
+                el.style.zIndex = index + 1;
                 canvas.appendChild(el);
             });
         }
 
         function getSortedElementsForRendering() {
-            // We need to render parents first, then children
-            // And within siblings, lower index = rendered later (on top)
+            // Elements rendered later appear in front
+            // Parents render first (behind), children render after (in front)
+            // Within siblings, first in array renders first (behind), last renders last (in front)
             const result = [];
 
-            function addElementsRecursive(parentId, depth) {
+            function addElementsRecursive(parentId) {
                 const children = state.elements.filter(el => el.parentId === parentId);
-                // Reverse so that first in array is rendered last (on top)
-                children.slice().reverse().forEach(child => {
-                    result.unshift({ element: child, depth });
-                    addElementsRecursive(child.id, depth + 1);
+                children.forEach(child => {
+                    result.push(child); // Parent first
+                    addElementsRecursive(child.id); // Then its children (in front)
                 });
             }
 
-            addElementsRecursive(null, 0);
-            return result.map(r => r.element);
+            addElementsRecursive(null);
+            return result;
+        }
+
+        function getElementAbsolutePosition(element) {
+            const pivot = PIVOT_OFFSETS[element.pivot || 0];
+            let containerWidth = state.canvasWidth;
+            let containerHeight = state.canvasHeight;
+            let parentAbsX = 0;
+            let parentAbsY = 0;
+
+            if (element.parentId) {
+                const parent = getElementById(element.parentId);
+                if (parent) {
+                    const parentPos = getElementAbsolutePosition(parent);
+                    parentAbsX = parentPos.x;
+                    parentAbsY = parentPos.y;
+                    containerWidth = parent.width;
+                    containerHeight = parent.height;
+                }
+            }
+
+            // Position percentage is relative to container
+            const anchorX = parentAbsX + (element.x / 100) * containerWidth;
+            const anchorY = parentAbsY + (element.y / 100) * containerHeight;
+
+            // Offset by pivot
+            const absX = anchorX - pivot.x * element.width;
+            const absY = anchorY - pivot.y * element.height;
+
+            return { x: absX, y: absY };
         }
 
         function createCanvasElement(element) {
@@ -1274,36 +1547,21 @@
             el.className = `canvas-element ${element.type}-el`;
             el.dataset.id = element.id;
 
-            // Calculate absolute position
-            let absX = (element.x / 100) * state.canvasWidth;
-            let absY = (element.y / 100) * state.canvasHeight;
+            const pos = getElementAbsolutePosition(element);
 
-            // If has parent, position is relative to parent
-            if (element.parentId) {
-                const parent = getElementById(element.parentId);
-                if (parent) {
-                    const parentAbsX = (parent.x / 100) * state.canvasWidth;
-                    const parentAbsY = (parent.y / 100) * state.canvasHeight;
-                    absX = parentAbsX + (element.x / 100) * parent.width;
-                    absY = parentAbsY + (element.y / 100) * parent.height;
-                }
-            }
-
-            el.style.left = absX + 'px';
-            el.style.top = absY + 'px';
+            el.style.left = pos.x + 'px';
+            el.style.top = pos.y + 'px';
             el.style.width = element.width + 'px';
             el.style.height = element.height + 'px';
 
-            // Apply type-specific styles
             applyElementStyles(el, element);
 
-            // Selection state
             if (element.id === state.selectedElementId && !state.isPreviewMode) {
                 el.classList.add('selected');
                 addResizeHandles(el);
+                addPivotIndicator(el, element);
             }
 
-            // Preview mode visibility
             if (state.isPreviewMode) {
                 const isVisible = evaluateVisibility(element);
                 if (!isVisible) {
@@ -1312,6 +1570,16 @@
             }
 
             return el;
+        }
+
+        function addPivotIndicator(el, element) {
+            const pivot = PIVOT_OFFSETS[element.pivot || 0];
+            const indicator = document.createElement('div');
+            indicator.className = 'pivot-indicator';
+            indicator.style.left = (pivot.x * 100) + '%';
+            indicator.style.top = (pivot.y * 100) + '%';
+            indicator.style.transform = 'translate(-50%, -50%)';
+            el.appendChild(indicator);
         }
 
         function applyElementStyles(el, element) {
@@ -1347,9 +1615,57 @@
                     el.style.fontSize = props.fontSize + 'px';
                     el.style.textAlign = props.textAlign;
                     el.style.justifyContent = props.textAlign === 'center' ? 'center' : (props.textAlign === 'right' ? 'flex-end' : 'flex-start');
-                    el.textContent = props.text;
+                    // Interpolate variables in preview mode
+                    el.textContent = state.isPreviewMode ? interpolateVariables(props.text) : props.text;
+                    break;
+                case 'slider':
+                    const sliderValue = getSliderCurrentValue(element);
+                    const percent = ((sliderValue - props.minValue) / (props.maxValue - props.minValue)) * 100;
+                    el.innerHTML = `
+                        <div class="slider-track" style="background: ${props.trackColor}">
+                            <div class="slider-fill" style="width: ${percent}%; background: ${props.fillColor}"></div>
+                            <div class="slider-thumb" style="left: ${percent}%; background: ${props.thumbColor}; border-color: ${props.fillColor}">
+                                ${props.showValue ? `<div class="slider-value-display">${sliderValue}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
                     break;
             }
+        }
+
+        function getSliderCurrentValue(element) {
+            const props = element.properties;
+            if (props.variable && state.isPreviewMode) {
+                const val = state.variableValues[props.variable];
+                if (typeof val === 'number') return val;
+            }
+            // Default to midpoint in editor mode or if no variable bound
+            const variable = state.variables.find(v => v.name === props.variable);
+            if (variable && variable.mode === 'slider') {
+                return variable.defaultValue !== undefined ? variable.defaultValue : (props.minValue + props.maxValue) / 2;
+            }
+            return (props.minValue + props.maxValue) / 2;
+        }
+
+        function interpolateVariables(text) {
+            if (!text) return text;
+            // Replace {VariableName} with current variable value
+            return text.replace(/\{([^}]+)\}/g, (match, varName) => {
+                const variable = state.variables.find(v => v.name === varName);
+                if (!variable) return match; // Keep original if variable not found
+
+                const value = state.variableValues[varName];
+                if (variable.mode === 'multiple') {
+                    // For multiple mode, show as comma-separated list
+                    return Array.isArray(value) ? value.join(', ') : '';
+                } else if (variable.mode === 'slider') {
+                    // For slider, show the number
+                    return typeof value === 'number' ? value : variable.defaultValue || 0;
+                } else {
+                    // For single mode, show the value
+                    return value || '';
+                }
+            });
         }
 
         function addResizeHandles(el) {
@@ -1388,7 +1704,6 @@
 
             const children = getChildren(element.id);
 
-            // Expand button
             const expandBtn = document.createElement('span');
             expandBtn.className = 'expand-btn';
             if (children.length > 0) {
@@ -1398,7 +1713,6 @@
             }
             item.appendChild(expandBtn);
 
-            // Icon
             const icon = document.createElement('span');
             icon.className = 'item-icon';
             switch (element.type) {
@@ -1409,7 +1723,6 @@
             }
             item.appendChild(icon);
 
-            // Name
             const name = document.createElement('span');
             name.className = 'item-name';
             name.textContent = element.name;
@@ -1417,7 +1730,6 @@
 
             container.appendChild(item);
 
-            // Children container
             if (children.length > 0) {
                 const childrenContainer = document.createElement('div');
                 childrenContainer.className = 'hierarchy-children';
@@ -1447,7 +1759,7 @@
 
             let html = '<div class="properties-content">';
 
-            // Transform group
+            // Transform group with pivot
             html += `
                 <div class="property-group">
                     <div class="property-group-title">Transform</div>
@@ -1456,13 +1768,21 @@
                         <input type="text" class="property-input" id="prop-name" value="${escapeHtml(element.name)}">
                     </div>
                     <div class="property-row">
+                        <span class="property-label">Pivot</span>
+                        <div class="pivot-grid">
+                            ${[0,1,2,3,4,5,6,7,8].map(i => `
+                                <button class="pivot-btn ${element.pivot === i ? 'active' : ''}" data-pivot="${i}"></button>
+                            `).join('')}
+                        </div>
+                    </div>
+                    <div class="property-row">
                         <span class="property-label">Position</span>
                         <div class="property-row-double" style="flex:1">
                             <input type="number" class="property-input" id="prop-x" value="${element.x.toFixed(1)}" step="0.1">
                             <input type="number" class="property-input" id="prop-y" value="${element.y.toFixed(1)}" step="0.1">
                         </div>
                     </div>
-                    <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;margin-left:70px;">X% / Y%</div>
+                    <div style="font-size:10px;color:var(--text-secondary);margin-bottom:8px;margin-left:70px;">X% / Y% (pivot anchor point)</div>
                     <div class="property-row">
                         <span class="property-label">Size</span>
                         <div class="property-row-double" style="flex:1">
@@ -1548,6 +1868,16 @@
                             <input type="text" class="property-input" id="prop-text" value="${escapeHtml(props.text)}">
                         </div>
                         <div class="property-row">
+                            <span class="property-label"></span>
+                            <div class="insert-var-container">
+                                <select class="property-select insert-var-select" id="insert-var-select">
+                                    <option value="">Insert {variable}...</option>
+                                    ${state.variables.map(v => `<option value="${v.name}">${v.name} (${v.mode})</option>`).join('')}
+                                </select>
+                                <button class="insert-var-btn" id="insert-var-btn" title="Insert variable at cursor">+</button>
+                            </div>
+                        </div>
+                        <div class="property-row">
                             <span class="property-label">Color</span>
                             <input type="color" class="property-color" id="prop-textColor" value="${props.textColor}">
                         </div>
@@ -1562,6 +1892,46 @@
                                 <option value="center" ${props.textAlign === 'center' ? 'selected' : ''}>Center</option>
                                 <option value="right" ${props.textAlign === 'right' ? 'selected' : ''}>Right</option>
                             </select>
+                        </div>
+                    `;
+                    break;
+                case 'slider':
+                    const sliderVars = state.variables.filter(v => v.mode === 'slider');
+                    html += `
+                        <div class="property-row">
+                            <span class="property-label">Variable</span>
+                            <select class="property-select" id="prop-variable">
+                                <option value="">-- None --</option>
+                                ${sliderVars.map(v => `<option value="${v.name}" ${props.variable === v.name ? 'selected' : ''}>${v.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Min</span>
+                            <input type="number" class="property-input property-input-small" id="prop-minValue" value="${props.minValue}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Max</span>
+                            <input type="number" class="property-input property-input-small" id="prop-maxValue" value="${props.maxValue}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Step</span>
+                            <input type="number" class="property-input property-input-small" id="prop-step" value="${props.step}" min="0.01" step="0.01">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Track</span>
+                            <input type="color" class="property-color" id="prop-trackColor" value="${props.trackColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Fill</span>
+                            <input type="color" class="property-color" id="prop-fillColor" value="${props.fillColor}">
+                        </div>
+                        <div class="property-row">
+                            <span class="property-label">Thumb</span>
+                            <input type="color" class="property-color" id="prop-thumbColor" value="${props.thumbColor}">
+                        </div>
+                        <div class="property-row">
+                            <input type="checkbox" class="property-checkbox" id="prop-showValue" ${props.showValue ? 'checked' : ''}>
+                            <span class="property-label" style="width:auto">Show Value</span>
                         </div>
                     `;
                     break;
@@ -1584,7 +1954,6 @@
             html += '</div>';
             panel.innerHTML = html;
 
-            // Attach property change handlers
             attachPropertyHandlers(element);
         }
 
@@ -1593,15 +1962,24 @@
 
             const actions = element.logic.actions || [];
             actions.forEach((action, index) => {
+                const variable = state.variables.find(v => v.name === action.variable);
+                const isMultiple = variable && variable.mode === 'multiple';
+
                 html += `
                     <div class="logic-action" data-index="${index}">
                         <div class="logic-row">
-                            <span class="logic-label">Set</span>
+                            ${isMultiple ? `
+                                <select class="logic-select action-operation" data-index="${index}">
+                                    <option value="add" ${action.operation === 'add' ? 'selected' : ''}>Add</option>
+                                    <option value="remove" ${action.operation === 'remove' ? 'selected' : ''}>Remove</option>
+                                    <option value="toggle" ${action.operation === 'toggle' ? 'selected' : ''}>Toggle</option>
+                                </select>
+                            ` : `<span class="logic-label">Set</span>`}
                             <select class="logic-select action-var" data-index="${index}">
                                 <option value="">-- Variable --</option>
-                                ${state.variables.map(v => `<option value="${v.name}" ${action.variable === v.name ? 'selected' : ''}>${v.name}</option>`).join('')}
+                                ${state.variables.map(v => `<option value="${v.name}" ${action.variable === v.name ? 'selected' : ''}>${v.name} ${v.mode === 'multiple' ? '(multi)' : ''}</option>`).join('')}
                             </select>
-                            <span class="logic-label">to</span>
+                            ${!isMultiple ? `<span class="logic-label">to</span>` : `<span class="logic-label">:</span>`}
                             <select class="logic-select action-value" data-index="${index}">
                                 <option value="">-- Value --</option>
                                 ${getVariableValues(action.variable).map(val => `<option value="${val}" ${action.value === val ? 'selected' : ''}>${val}</option>`).join('')}
@@ -1623,7 +2001,11 @@
 
             const conditions = element.logic.conditions || [];
             conditions.forEach((condition, index) => {
+                const variable = state.variables.find(v => v.name === condition.variable);
+                const isMultiple = variable && variable.mode === 'multiple';
+                const isSlider = variable && variable.mode === 'slider';
                 const varValues = getVariableValues(condition.variable);
+
                 html += `
                     <div class="logic-condition" data-index="${index}">
                         <div class="logic-row">
@@ -1636,21 +2018,38 @@
                             <span class="logic-label">If</span>
                             <select class="logic-select condition-var" data-index="${index}">
                                 <option value="">-- Variable --</option>
-                                ${state.variables.map(v => `<option value="${v.name}" ${condition.variable === v.name ? 'selected' : ''}>${v.name}</option>`).join('')}
+                                ${state.variables.map(v => {
+                                    const badge = v.mode === 'multiple' ? '(multi)' : (v.mode === 'slider' ? '(slider)' : '');
+                                    return `<option value="${v.name}" ${condition.variable === v.name ? 'selected' : ''}>${v.name} ${badge}</option>`;
+                                }).join('')}
                             </select>
-                            <span class="logic-label">is</span>
+                            ${isSlider ? `
+                                <select class="logic-select condition-comparison" data-index="${index}">
+                                    <option value="==" ${condition.comparison === '==' ? 'selected' : ''}>=</option>
+                                    <option value="!=" ${condition.comparison === '!=' ? 'selected' : ''}>!=</option>
+                                    <option value=">" ${condition.comparison === '>' ? 'selected' : ''}>&gt;</option>
+                                    <option value=">=" ${condition.comparison === '>=' ? 'selected' : ''}>&gt;=</option>
+                                    <option value="<" ${condition.comparison === '<' ? 'selected' : ''}>&lt;</option>
+                                    <option value="<=" ${condition.comparison === '<=' ? 'selected' : ''}>&lt;=</option>
+                                </select>
+                                <input type="number" class="property-input property-input-small condition-slider-value" data-index="${index}" value="${condition.sliderValue !== undefined ? condition.sliderValue : 50}" step="${variable.step || 1}">
+                            ` : `
+                                <span class="logic-label">${isMultiple ? 'contains' : 'is'}</span>
+                            `}
                             <button class="logic-delete" data-index="${index}">&times;</button>
                         </div>
-                        <div class="logic-row">
-                            <div class="value-checkboxes">
-                                ${varValues.map(val => `
-                                    <label class="value-checkbox-label">
-                                        <input type="checkbox" class="condition-value-check" data-index="${index}" data-value="${val}" ${(condition.values || []).includes(val) ? 'checked' : ''}>
-                                        ${val}
-                                    </label>
-                                `).join('')}
+                        ${!isSlider ? `
+                            <div class="logic-row">
+                                <div class="value-checkboxes">
+                                    ${varValues.map(val => `
+                                        <label class="value-checkbox-label">
+                                            <input type="checkbox" class="condition-value-check" data-index="${index}" data-value="${val}" ${(condition.values || []).includes(val) ? 'checked' : ''}>
+                                            ${val}
+                                        </label>
+                                    `).join('')}
+                                </div>
                             </div>
-                        </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -1676,10 +2075,21 @@
 
         function getVariableValues(varName) {
             const variable = state.variables.find(v => v.name === varName);
-            return variable ? variable.values : [];
+            return variable && variable.values ? variable.values : [];
         }
 
         function attachPropertyHandlers(element) {
+            // Pivot buttons
+            document.querySelectorAll('.pivot-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    saveState();
+                    element.pivot = parseInt(btn.dataset.pivot);
+                    renderCanvas();
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
             // Name
             const nameInput = document.getElementById('prop-name');
             if (nameInput) {
@@ -1747,6 +2157,34 @@
                 });
             }
 
+            // Insert variable button for text elements
+            const insertVarBtn = document.getElementById('insert-var-btn');
+            const insertVarSelect = document.getElementById('insert-var-select');
+            const textInput = document.getElementById('prop-text');
+            if (insertVarBtn && insertVarSelect && textInput) {
+                insertVarBtn.addEventListener('click', () => {
+                    const varName = insertVarSelect.value;
+                    if (!varName) return;
+
+                    saveState();
+                    const cursorPos = textInput.selectionStart || textInput.value.length;
+                    const textBefore = textInput.value.substring(0, cursorPos);
+                    const textAfter = textInput.value.substring(cursorPos);
+                    const newText = textBefore + `{${varName}}` + textAfter;
+
+                    textInput.value = newText;
+                    element.properties.text = newText;
+                    renderCanvas();
+                    autoSave();
+
+                    // Reset dropdown and refocus
+                    insertVarSelect.value = '';
+                    textInput.focus();
+                    const newCursorPos = cursorPos + varName.length + 2;
+                    textInput.setSelectionRange(newCursorPos, newCursorPos);
+                });
+            }
+
             // Button logic handlers
             if (element.type === 'button') {
                 document.querySelectorAll('.action-var').forEach(select => {
@@ -1755,7 +2193,23 @@
                         saveState();
                         element.logic.actions[index].variable = e.target.value;
                         element.logic.actions[index].value = '';
+                        // Set default operation for multiple vars
+                        const variable = state.variables.find(v => v.name === e.target.value);
+                        if (variable && variable.mode === 'multiple') {
+                            element.logic.actions[index].operation = 'add';
+                        } else {
+                            delete element.logic.actions[index].operation;
+                        }
                         renderProperties();
+                        autoSave();
+                    });
+                });
+
+                document.querySelectorAll('.action-operation').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.actions[index].operation = e.target.value;
                         autoSave();
                     });
                 });
@@ -1827,6 +2281,26 @@
                     });
                 });
 
+                // Slider condition comparison operator handler
+                document.querySelectorAll('.condition-comparison').forEach(select => {
+                    select.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.conditions[index].comparison = e.target.value;
+                        autoSave();
+                    });
+                });
+
+                // Slider condition value handler
+                document.querySelectorAll('.condition-slider-value').forEach(input => {
+                    input.addEventListener('change', (e) => {
+                        const index = parseInt(e.target.dataset.index);
+                        saveState();
+                        element.logic.conditions[index].sliderValue = parseFloat(e.target.value);
+                        autoSave();
+                    });
+                });
+
                 document.querySelectorAll('.logic-condition .logic-delete').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         const index = parseInt(e.target.dataset.index);
@@ -1887,22 +2361,59 @@
             let html = '';
 
             state.variables.forEach((variable, varIndex) => {
+                const isMultiple = variable.mode === 'multiple';
+                const isSlider = variable.mode === 'slider';
+                const modeBadgeClass = isMultiple ? 'multiple' : (isSlider ? 'slider' : '');
+                const modeBadgeText = isMultiple ? 'Multi' : (isSlider ? 'Slider' : 'Single');
+
                 html += `
                     <div class="variable-item" data-index="${varIndex}">
                         <div class="variable-header">
                             <span class="variable-expand">&#9660;</span>
-                            <span class="variable-name">${escapeHtml(variable.name)}</span>
+                            <input type="text" class="variable-name-input" value="${escapeHtml(variable.name)}" data-index="${varIndex}">
+                            <span class="variable-mode-badge ${modeBadgeClass}">${modeBadgeText}</span>
                             <button class="variable-delete" data-index="${varIndex}">&times;</button>
                         </div>
                         <div class="variable-values">
-                            ${variable.values.map((value, valIndex) => `
+                            <div class="variable-mode-row">
+                                <label>Mode:</label>
+                                <select class="variable-mode-select" data-index="${varIndex}">
+                                    <option value="single" ${variable.mode === 'single' ? 'selected' : ''}>Single (enum)</option>
+                                    <option value="multiple" ${variable.mode === 'multiple' ? 'selected' : ''}>Multiple (set)</option>
+                                    <option value="slider" ${variable.mode === 'slider' ? 'selected' : ''}>Slider (number)</option>
+                                </select>
+                            </div>
+                            ${isSlider ? `
                                 <div class="variable-value-item">
-                                    <input type="radio" class="default-radio" name="default-${varIndex}" data-var="${varIndex}" data-val="${valIndex}" ${variable.defaultValue === value ? 'checked' : ''} title="Set as default">
-                                    <input type="text" value="${escapeHtml(value)}" data-var="${varIndex}" data-val="${valIndex}" class="value-input">
-                                    <button class="delete-value" data-var="${varIndex}" data-val="${valIndex}">&times;</button>
+                                    <label style="width:50px">Min:</label>
+                                    <input type="number" class="slider-min-input" data-var="${varIndex}" value="${variable.minValue !== undefined ? variable.minValue : 0}" style="width:60px">
                                 </div>
-                            `).join('')}
-                            <button class="add-value-btn" data-index="${varIndex}">+ Add Value</button>
+                                <div class="variable-value-item">
+                                    <label style="width:50px">Max:</label>
+                                    <input type="number" class="slider-max-input" data-var="${varIndex}" value="${variable.maxValue !== undefined ? variable.maxValue : 100}" style="width:60px">
+                                </div>
+                                <div class="variable-value-item">
+                                    <label style="width:50px">Step:</label>
+                                    <input type="number" class="slider-step-input" data-var="${varIndex}" value="${variable.step !== undefined ? variable.step : 1}" step="0.01" min="0.01" style="width:60px">
+                                </div>
+                                <div class="variable-value-item">
+                                    <label style="width:50px">Default:</label>
+                                    <input type="number" class="slider-default-input" data-var="${varIndex}" value="${variable.defaultValue !== undefined ? variable.defaultValue : 50}" style="width:60px">
+                                </div>
+                            ` : `
+                                ${(variable.values || []).map((value, valIndex) => `
+                                    <div class="variable-value-item">
+                                        ${isMultiple ? `
+                                            <input type="checkbox" class="default-check" data-var="${varIndex}" data-val="${valIndex}" ${(variable.defaultValues || []).includes(value) ? 'checked' : ''} title="Include in default set">
+                                        ` : `
+                                            <input type="radio" class="default-radio" name="default-${varIndex}" data-var="${varIndex}" data-val="${valIndex}" ${variable.defaultValue === value ? 'checked' : ''} title="Set as default">
+                                        `}
+                                        <input type="text" value="${escapeHtml(value)}" data-var="${varIndex}" data-val="${valIndex}" class="value-input">
+                                        <button class="delete-value" data-var="${varIndex}" data-val="${valIndex}">&times;</button>
+                                    </div>
+                                `).join('')}
+                                <button class="add-value-btn" data-index="${varIndex}">+ Add Value</button>
+                            `}
                         </div>
                     </div>
                 `;
@@ -1910,7 +2421,101 @@
 
             list.innerHTML = html;
 
-            // Attach handlers
+            // Variable name change handler
+            document.querySelectorAll('.variable-name-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    const oldName = state.variables[index].name;
+                    const newName = e.target.value.trim();
+
+                    if (!newName) {
+                        e.target.value = oldName;
+                        return;
+                    }
+
+                    saveState();
+                    state.variables[index].name = newName;
+
+                    // Update all elements that reference this variable
+                    state.elements.forEach(el => {
+                        if (el.logic.actions) {
+                            el.logic.actions.forEach(action => {
+                                if (action.variable === oldName) {
+                                    action.variable = newName;
+                                }
+                            });
+                        }
+                        if (el.logic.conditions) {
+                            el.logic.conditions.forEach(condition => {
+                                if (condition.variable === oldName) {
+                                    condition.variable = newName;
+                                }
+                            });
+                        }
+                    });
+
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
+            // Variable mode change handler
+            document.querySelectorAll('.variable-mode-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    saveState();
+                    const variable = state.variables[index];
+                    const newMode = e.target.value;
+                    variable.mode = newMode;
+
+                    // Migrate defaults based on mode change
+                    if (newMode === 'multiple') {
+                        variable.defaultValues = variable.defaultValue ? [variable.defaultValue] : [];
+                        if (!variable.values) variable.values = ['value1', 'value2'];
+                    } else if (newMode === 'slider') {
+                        variable.minValue = 0;
+                        variable.maxValue = 100;
+                        variable.step = 1;
+                        variable.defaultValue = 50;
+                        delete variable.values;
+                        delete variable.defaultValues;
+                    } else {
+                        // single mode
+                        variable.defaultValue = (variable.defaultValues && variable.defaultValues[0]) || (variable.values && variable.values[0]) || 'value1';
+                        if (!variable.values) variable.values = ['value1', 'value2'];
+                        delete variable.defaultValues;
+                        delete variable.minValue;
+                        delete variable.maxValue;
+                        delete variable.step;
+                    }
+
+                    renderVariables();
+                    renderProperties();
+                    autoSave();
+                });
+            });
+
+            // Slider variable inputs handler
+            document.querySelectorAll('.slider-min-input, .slider-max-input, .slider-step-input, .slider-default-input').forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const varIndex = parseInt(e.target.dataset.var);
+                    saveState();
+                    const variable = state.variables[varIndex];
+                    if (e.target.classList.contains('slider-min-input')) {
+                        variable.minValue = parseFloat(e.target.value);
+                    } else if (e.target.classList.contains('slider-max-input')) {
+                        variable.maxValue = parseFloat(e.target.value);
+                    } else if (e.target.classList.contains('slider-step-input')) {
+                        variable.step = parseFloat(e.target.value);
+                    } else if (e.target.classList.contains('slider-default-input')) {
+                        variable.defaultValue = parseFloat(e.target.value);
+                    }
+                    renderCanvas();
+                    autoSave();
+                });
+            });
+
+            // Delete variable handler
             document.querySelectorAll('.variable-delete').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.stopPropagation();
@@ -1923,6 +2528,7 @@
                 });
             });
 
+            // Value input change handler
             document.querySelectorAll('.value-input').forEach(input => {
                 input.addEventListener('change', (e) => {
                     const varIndex = parseInt(e.target.dataset.var);
@@ -1930,14 +2536,24 @@
                     const oldValue = state.variables[varIndex].values[valIndex];
                     saveState();
                     state.variables[varIndex].values[valIndex] = e.target.value;
-                    if (state.variables[varIndex].defaultValue === oldValue) {
+
+                    // Update defaults
+                    if (state.variables[varIndex].mode === 'multiple') {
+                        const defaults = state.variables[varIndex].defaultValues || [];
+                        const idx = defaults.indexOf(oldValue);
+                        if (idx >= 0) {
+                            defaults[idx] = e.target.value;
+                        }
+                    } else if (state.variables[varIndex].defaultValue === oldValue) {
                         state.variables[varIndex].defaultValue = e.target.value;
                     }
+
                     renderProperties();
                     autoSave();
                 });
             });
 
+            // Single mode default radio handler
             document.querySelectorAll('.default-radio').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     const varIndex = parseInt(e.target.dataset.var);
@@ -1948,6 +2564,30 @@
                 });
             });
 
+            // Multiple mode default checkbox handler
+            document.querySelectorAll('.default-check').forEach(checkbox => {
+                checkbox.addEventListener('change', (e) => {
+                    const varIndex = parseInt(e.target.dataset.var);
+                    const valIndex = parseInt(e.target.dataset.val);
+                    const value = state.variables[varIndex].values[valIndex];
+                    saveState();
+
+                    if (!state.variables[varIndex].defaultValues) {
+                        state.variables[varIndex].defaultValues = [];
+                    }
+
+                    if (e.target.checked) {
+                        if (!state.variables[varIndex].defaultValues.includes(value)) {
+                            state.variables[varIndex].defaultValues.push(value);
+                        }
+                    } else {
+                        state.variables[varIndex].defaultValues = state.variables[varIndex].defaultValues.filter(v => v !== value);
+                    }
+                    autoSave();
+                });
+            });
+
+            // Delete value handler
             document.querySelectorAll('.delete-value').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const varIndex = parseInt(e.target.dataset.var);
@@ -1958,15 +2598,21 @@
                     }
                     saveState();
                     const removedValue = state.variables[varIndex].values.splice(valIndex, 1)[0];
-                    if (state.variables[varIndex].defaultValue === removedValue) {
+
+                    // Update defaults
+                    if (state.variables[varIndex].mode === 'multiple') {
+                        state.variables[varIndex].defaultValues = (state.variables[varIndex].defaultValues || []).filter(v => v !== removedValue);
+                    } else if (state.variables[varIndex].defaultValue === removedValue) {
                         state.variables[varIndex].defaultValue = state.variables[varIndex].values[0];
                     }
+
                     renderVariables();
                     renderProperties();
                     autoSave();
                 });
             });
 
+            // Add value handler
             document.querySelectorAll('.add-value-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const index = parseInt(e.target.dataset.index);
@@ -1987,7 +2633,6 @@
             document.getElementById('stop-preview-btn').style.display = '';
             document.getElementById('reset-vars-btn').style.display = '';
 
-            // Initialize variable values to defaults
             resetVariableValues();
 
             state.selectedElementId = null;
@@ -2006,16 +2651,61 @@
         function resetVariableValues() {
             state.variableValues = {};
             state.variables.forEach(variable => {
-                state.variableValues[variable.name] = variable.defaultValue || variable.values[0];
+                if (variable.mode === 'multiple') {
+                    // For multiple mode, store as array (like a Set)
+                    state.variableValues[variable.name] = [...(variable.defaultValues || [])];
+                } else if (variable.mode === 'slider') {
+                    // For slider mode, store as number
+                    state.variableValues[variable.name] = variable.defaultValue !== undefined ? variable.defaultValue : (variable.minValue + variable.maxValue) / 2;
+                } else {
+                    // For single mode, store as string
+                    state.variableValues[variable.name] = variable.defaultValue || variable.values[0];
+                }
             });
         }
 
-        function setVariableValue(varName, value) {
-            state.variableValues[varName] = value;
-            renderCanvas(); // Re-render to apply visibility changes
+        function setVariableValue(varName, value, operation) {
+            const variable = state.variables.find(v => v.name === varName);
+            if (!variable) return;
+
+            if (variable.mode === 'multiple') {
+                const currentSet = state.variableValues[varName] || [];
+
+                switch (operation) {
+                    case 'add':
+                        if (!currentSet.includes(value)) {
+                            currentSet.push(value);
+                        }
+                        break;
+                    case 'remove':
+                        state.variableValues[varName] = currentSet.filter(v => v !== value);
+                        break;
+                    case 'toggle':
+                        if (currentSet.includes(value)) {
+                            state.variableValues[varName] = currentSet.filter(v => v !== value);
+                        } else {
+                            currentSet.push(value);
+                        }
+                        break;
+                }
+            } else {
+                // Single mode - just set the value
+                state.variableValues[varName] = value;
+            }
+
+            renderCanvas();
         }
 
         function evaluateVisibility(element) {
+            // First check if parent is visible - if parent is hidden, child must be hidden too
+            if (element.parentId !== null) {
+                const parent = getElementById(element.parentId);
+                if (parent && !evaluateVisibility(parent)) {
+                    return false;
+                }
+            }
+
+            // Now evaluate this element's own conditions
             const conditions = element.logic.conditions || [];
             if (conditions.length === 0) return true;
 
@@ -2023,8 +2713,32 @@
 
             for (let i = 0; i < conditions.length; i++) {
                 const condition = conditions[i];
+                const variable = state.variables.find(v => v.name === condition.variable);
                 const currentValue = state.variableValues[condition.variable];
-                const conditionMet = (condition.values || []).includes(currentValue);
+                let conditionMet = false;
+
+                if (variable && variable.mode === 'multiple') {
+                    // For multiple mode, check if any of the condition values are in the current set
+                    const currentSet = Array.isArray(currentValue) ? currentValue : [];
+                    conditionMet = (condition.values || []).some(v => currentSet.includes(v));
+                } else if (variable && variable.mode === 'slider') {
+                    // For slider mode, use numeric comparison
+                    const numValue = typeof currentValue === 'number' ? currentValue : 0;
+                    const compareValue = condition.sliderValue !== undefined ? condition.sliderValue : 0;
+                    const comparison = condition.comparison || '==';
+
+                    switch (comparison) {
+                        case '==': conditionMet = numValue === compareValue; break;
+                        case '!=': conditionMet = numValue !== compareValue; break;
+                        case '>': conditionMet = numValue > compareValue; break;
+                        case '>=': conditionMet = numValue >= compareValue; break;
+                        case '<': conditionMet = numValue < compareValue; break;
+                        case '<=': conditionMet = numValue <= compareValue; break;
+                    }
+                } else {
+                    // For single mode, check if current value matches any condition value
+                    conditionMet = (condition.values || []).includes(currentValue);
+                }
 
                 if (i === 0) {
                     result = conditionMet;
@@ -2037,7 +2751,6 @@
                 }
             }
 
-            // Apply result based on enable/disable setting
             if (element.logic.result === 'disable') {
                 return !result;
             }
@@ -2050,9 +2763,76 @@
             const actions = element.logic.actions || [];
             actions.forEach(action => {
                 if (action.variable && action.value) {
-                    setVariableValue(action.variable, action.value);
+                    const variable = state.variables.find(v => v.name === action.variable);
+                    if (variable && variable.mode === 'multiple') {
+                        setVariableValue(action.variable, action.value, action.operation || 'add');
+                    } else {
+                        setVariableValue(action.variable, action.value);
+                    }
                 }
             });
+        }
+
+        // Slider drag handling
+        let activeSlider = null;
+
+        function startSliderDrag(e, element, sliderEl) {
+            activeSlider = { element, sliderEl };
+            updateSliderFromEvent(e);
+
+            document.addEventListener('mousemove', onSliderDrag);
+            document.addEventListener('mouseup', stopSliderDrag);
+        }
+
+        function onSliderDrag(e) {
+            if (activeSlider) {
+                updateSliderFromEvent(e);
+            }
+        }
+
+        function stopSliderDrag() {
+            activeSlider = null;
+            document.removeEventListener('mousemove', onSliderDrag);
+            document.removeEventListener('mouseup', stopSliderDrag);
+        }
+
+        function updateSliderFromEvent(e) {
+            if (!activeSlider) return;
+
+            const { element } = activeSlider;
+
+            // Find the current slider element fresh (since renderCanvas recreates DOM)
+            const sliderEl = document.querySelector(`.canvas-element.slider-el[data-id="${element.id}"]`);
+            if (!sliderEl) return;
+
+            const track = sliderEl.querySelector('.slider-track');
+            if (!track) return;
+
+            const trackRect = track.getBoundingClientRect();
+
+            // Simple calculation - getBoundingClientRect already accounts for transforms
+            const x = e.clientX - trackRect.left;
+            const width = trackRect.width;
+
+            // Avoid division by zero
+            if (width <= 0) return;
+
+            const percent = Math.max(0, Math.min(100, (x / width) * 100));
+
+            const props = element.properties;
+            const range = props.maxValue - props.minValue;
+            let value = props.minValue + (percent / 100) * range;
+
+            // Snap to step
+            if (props.step > 0) {
+                value = Math.round(value / props.step) * props.step;
+            }
+            value = Math.max(props.minValue, Math.min(props.maxValue, value));
+
+            // Update the variable value
+            if (props.variable) {
+                setVariableValue(props.variable, value);
+            }
         }
 
         // ==================== EVENT HANDLERS ====================
@@ -2098,7 +2878,6 @@
                 x = snapToGrid(x);
                 y = snapToGrid(y);
 
-                // Convert to percentage
                 const xPercent = (x / state.canvasWidth) * 100;
                 const yPercent = (y / state.canvasHeight) * 100;
 
@@ -2121,7 +2900,6 @@
 
         document.getElementById('canvas').addEventListener('mousedown', (e) => {
             if (state.isPreviewMode) {
-                // Handle button clicks in preview mode
                 const elementEl = e.target.closest('.canvas-element');
                 if (elementEl && elementEl.classList.contains('button-el')) {
                     const element = getElementById(parseInt(elementEl.dataset.id));
@@ -2129,10 +2907,18 @@
                         handleButtonClick(element);
                     }
                 }
+                // Handle slider interaction - check if we clicked on any part of a slider
+                const sliderEl = e.target.closest('.canvas-element.slider-el');
+                if (sliderEl) {
+                    const element = getElementById(parseInt(sliderEl.dataset.id));
+                    if (element) {
+                        e.preventDefault();
+                        startSliderDrag(e, element, sliderEl);
+                    }
+                }
                 return;
             }
 
-            // Check if clicking on resize handle
             if (e.target.classList.contains('resize-handle')) {
                 isResizing = true;
                 resizeHandle = e.target.dataset.handle;
@@ -2151,7 +2937,6 @@
                 return;
             }
 
-            // Check if clicking on element
             const elementEl = e.target.closest('.canvas-element');
             if (elementEl) {
                 const elementId = parseInt(elementEl.dataset.id);
@@ -2169,7 +2954,6 @@
                 renderAll();
                 e.preventDefault();
             } else {
-                // Clicked on empty canvas
                 state.selectedElementId = null;
                 renderAll();
             }
@@ -2187,35 +2971,27 @@
                 const deltaX = (e.clientX - dragStartX) * scale;
                 const deltaY = (e.clientY - dragStartY) * scale;
 
-                let newX, newY;
+                let containerWidth = state.canvasWidth;
+                let containerHeight = state.canvasHeight;
 
                 if (element.parentId) {
                     const parent = getElementById(element.parentId);
-                    newX = elementStartX + (deltaX / parent.width) * 100;
-                    newY = elementStartY + (deltaY / parent.height) * 100;
-                } else {
-                    newX = elementStartX + (deltaX / state.canvasWidth) * 100;
-                    newY = elementStartY + (deltaY / state.canvasHeight) * 100;
+                    if (parent) {
+                        containerWidth = parent.width;
+                        containerHeight = parent.height;
+                    }
                 }
 
-                // Snap to grid (convert back to pixels, snap, convert to %)
-                let pixelX, pixelY;
-                if (element.parentId) {
-                    const parent = getElementById(element.parentId);
-                    pixelX = (newX / 100) * parent.width;
-                    pixelY = (newY / 100) * parent.height;
-                    pixelX = snapToGrid(pixelX);
-                    pixelY = snapToGrid(pixelY);
-                    element.x = (pixelX / parent.width) * 100;
-                    element.y = (pixelY / parent.height) * 100;
-                } else {
-                    pixelX = (newX / 100) * state.canvasWidth;
-                    pixelY = (newY / 100) * state.canvasHeight;
-                    pixelX = snapToGrid(pixelX);
-                    pixelY = snapToGrid(pixelY);
-                    element.x = (pixelX / state.canvasWidth) * 100;
-                    element.y = (pixelY / state.canvasHeight) * 100;
-                }
+                let newX = elementStartX + (deltaX / containerWidth) * 100;
+                let newY = elementStartY + (deltaY / containerHeight) * 100;
+
+                // Snap to grid
+                let pixelX = (newX / 100) * containerWidth;
+                let pixelY = (newY / 100) * containerHeight;
+                pixelX = snapToGrid(pixelX);
+                pixelY = snapToGrid(pixelY);
+                element.x = (pixelX / containerWidth) * 100;
+                element.y = (pixelY / containerHeight) * 100;
 
                 renderCanvas();
                 renderProperties();
@@ -2231,32 +3007,32 @@
                 let newX = elementStartX;
                 let newY = elementStartY;
 
+                let containerWidth = state.canvasWidth;
+                let containerHeight = state.canvasHeight;
+
+                if (element.parentId) {
+                    const parent = getElementById(element.parentId);
+                    if (parent) {
+                        containerWidth = parent.width;
+                        containerHeight = parent.height;
+                    }
+                }
+
                 if (resizeHandle.includes('e')) {
                     newWidth = elementStartWidth + deltaX;
                 }
                 if (resizeHandle.includes('w')) {
                     newWidth = elementStartWidth - deltaX;
-                    if (element.parentId) {
-                        const parent = getElementById(element.parentId);
-                        newX = elementStartX + (deltaX / parent.width) * 100;
-                    } else {
-                        newX = elementStartX + (deltaX / state.canvasWidth) * 100;
-                    }
+                    newX = elementStartX + (deltaX / containerWidth) * 100;
                 }
                 if (resizeHandle.includes('s')) {
                     newHeight = elementStartHeight + deltaY;
                 }
                 if (resizeHandle.includes('n')) {
                     newHeight = elementStartHeight - deltaY;
-                    if (element.parentId) {
-                        const parent = getElementById(element.parentId);
-                        newY = elementStartY + (deltaY / parent.height) * 100;
-                    } else {
-                        newY = elementStartY + (deltaY / state.canvasHeight) * 100;
-                    }
+                    newY = elementStartY + (deltaY / containerHeight) * 100;
                 }
 
-                // Snap width/height to grid
                 newWidth = Math.max(state.gridSize, snapToGrid(newWidth));
                 newHeight = Math.max(state.gridSize, snapToGrid(newHeight));
 
@@ -2370,7 +3146,6 @@
                     const draggedElement = getElementById(hierarchyDraggedId);
                     const targetElement = getElementById(targetId);
 
-                    // Check if target is a descendant of dragged (prevent circular parenting)
                     let parent = targetElement;
                     let isDescendant = false;
                     while (parent) {
@@ -2384,21 +3159,15 @@
                     if (!isDescendant) {
                         saveState();
 
-                        // Determine if we're parenting or reordering
                         if (targetElement.type === 'container' || e.ctrlKey) {
-                            // Parent to container
                             draggedElement.parentId = targetId;
 
-                            // Recalculate position relative to new parent
-                            const oldAbsX = (draggedElement.x / 100) * state.canvasWidth;
-                            const oldAbsY = (draggedElement.y / 100) * state.canvasHeight;
-                            const parentAbsX = (targetElement.x / 100) * state.canvasWidth;
-                            const parentAbsY = (targetElement.y / 100) * state.canvasHeight;
+                            const oldPos = getElementAbsolutePosition(draggedElement);
+                            const parentPos = getElementAbsolutePosition(targetElement);
 
-                            draggedElement.x = ((oldAbsX - parentAbsX) / targetElement.width) * 100;
-                            draggedElement.y = ((oldAbsY - parentAbsY) / targetElement.height) * 100;
+                            draggedElement.x = ((oldPos.x - parentPos.x) / targetElement.width) * 100;
+                            draggedElement.y = ((oldPos.y - parentPos.y) / targetElement.height) * 100;
                         } else {
-                            // Reorder - place after target
                             const targetIndex = state.elements.indexOf(targetElement);
                             const draggedIndex = state.elements.indexOf(draggedElement);
 
@@ -2406,7 +3175,6 @@
                             const newIndex = targetIndex > draggedIndex ? targetIndex : targetIndex + 1;
                             state.elements.splice(newIndex, 0, draggedElement);
 
-                            // Match parent
                             if (draggedElement.parentId !== targetElement.parentId) {
                                 draggedElement.parentId = targetElement.parentId;
                             }
@@ -2421,7 +3189,6 @@
             hierarchyDraggedId = null;
         });
 
-        // Make hierarchy items draggable
         document.getElementById('hierarchy-tree').addEventListener('mousedown', (e) => {
             const item = e.target.closest('.hierarchy-item');
             if (item) {
@@ -2438,7 +3205,6 @@
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            // Ignore if typing in input
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
                 return;
             }
@@ -2450,13 +3216,11 @@
                 return;
             }
 
-            // Preview mode toggle
             if (e.key === 'p' || e.key === 'P') {
                 enterPreviewMode();
                 return;
             }
 
-            // Undo/Redo
             if (e.ctrlKey && e.key === 'z') {
                 e.preventDefault();
                 undo();
@@ -2468,7 +3232,6 @@
                 return;
             }
 
-            // Delete
             if ((e.key === 'Delete' || e.key === 'Backspace') && state.selectedElementId) {
                 saveState();
                 deleteElement(state.selectedElementId);
@@ -2478,23 +3241,16 @@
                 return;
             }
 
-            // Copy
             if (e.ctrlKey && e.key === 'c' && state.selectedElementId) {
                 const element = getElementById(state.selectedElementId);
                 state.clipboard = deepClone(element);
                 return;
             }
 
-            // Paste
             if (e.ctrlKey && e.key === 'v' && state.clipboard) {
-                const canvas = document.getElementById('canvas');
-                const rect = canvas.getBoundingClientRect();
-
-                // Get mouse position relative to canvas
-                // For simplicity, paste at center if no mouse tracking
                 saveState();
                 const newElement = duplicateElement(state.clipboard, 20, 20);
-                newElement.parentId = null; // Paste at root
+                newElement.parentId = null;
                 state.elements.push(newElement);
                 state.selectedElementId = newElement.id;
                 renderAll();
@@ -2502,7 +3258,6 @@
                 return;
             }
 
-            // Arrow keys nudge
             if (state.selectedElementId && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
                 e.preventDefault();
                 saveState();
@@ -2515,14 +3270,19 @@
                 if (e.key === 'ArrowLeft') deltaX = -nudgeAmount;
                 if (e.key === 'ArrowRight') deltaX = nudgeAmount;
 
+                let containerWidth = state.canvasWidth;
+                let containerHeight = state.canvasHeight;
+
                 if (element.parentId) {
                     const parent = getElementById(element.parentId);
-                    element.x += (deltaX / parent.width) * 100;
-                    element.y += (deltaY / parent.height) * 100;
-                } else {
-                    element.x += (deltaX / state.canvasWidth) * 100;
-                    element.y += (deltaY / state.canvasHeight) * 100;
+                    if (parent) {
+                        containerWidth = parent.width;
+                        containerHeight = parent.height;
+                    }
                 }
+
+                element.x += (deltaX / containerWidth) * 100;
+                element.y += (deltaY / containerHeight) * 100;
 
                 renderCanvas();
                 renderProperties();
@@ -2530,7 +3290,6 @@
                 return;
             }
 
-            // Escape to deselect
             if (e.key === 'Escape') {
                 state.selectedElementId = null;
                 renderAll();
@@ -2564,6 +3323,7 @@
             const name = `Variable${state.variables.length + 1}`;
             state.variables.push({
                 name,
+                mode: 'single',
                 values: ['value1', 'value2'],
                 defaultValue: 'value1'
             });
